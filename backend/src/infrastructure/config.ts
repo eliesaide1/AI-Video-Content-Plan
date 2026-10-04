@@ -35,10 +35,14 @@ export const config = {
   mongoUri: str('MONGODB_URI', 'mongodb://127.0.0.1:27017/ai_content_factory'),
 
   ai: {
+    /** 'anthropic' (API key) | 'claude-cli' (local Claude subscription) | 'mock' */
     provider: str('AI_PROVIDER', 'anthropic'),
     apiKey: str('AI_API_KEY'),
     model: str('AI_MODEL', 'claude-sonnet-5'),
     maxOutputTokens: num('AI_MAX_OUTPUT_TOKENS', 16000),
+    /** claude-cli only: the executable and how long one generation may take. */
+    cliBinary: str('AI_CLI_BINARY', 'claude'),
+    cliTimeoutMs: num('AI_CLI_TIMEOUT_MS', 300_000),
   },
 
   storage: {

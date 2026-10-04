@@ -213,9 +213,15 @@ const VERSION_SHAPED = /\bv?\d+\.\d+(\.\d+)?\b|canary|nightly|\balpha\b|\bbeta\b
 const ANNOUNCEMENT = /^(what'?s new|release notes?|changelog|introducing|announcing|.+ releases? .+)/i;
 /** "owner/repo ..." — a repository name is not a course title. */
 const REPO_SHAPED = /^[\w.-]+\/[\w.-]+(\s|$)/;
-/** A buildable topic almost always starts with, or contains, a verb like these. */
+/**
+ * A buildable topic contains a verb describing what the student DOES.
+ * This is a backstop, not the main guard — the version/announcement/deliverable
+ * checks do the real work — so the list stays generous. A missing verb once
+ * cost us "Run a private, fully offline AI coding assistant on your own
+ * hardware", which is exactly the kind of topic we want.
+ */
 const OUTCOME_VERB =
-  /\b(build|create|add|automate|migrate|deploy|ship|debug|fix|integrate|connect|design|implement|set up|refactor|optimi[sz]e|secure|test|scale|replace|extend|generate|turn)\b/i;
+  /\b(build|create|add|automate|migrate|deploy|ship|run|host|self-host|serve|debug|fix|integrate|connect|design|implement|set up|refactor|optimi[sz]e|secure|test|scale|replace|extend|generate|turn|train|package|publish|profile|containeri[sz]e|instrument|monitor|harden|benchmark|stream|convert|write|wire|schedule|cache|track|launch|tame|handle)\b/i;
 
 export function applyQualityGate(
   candidates: RankedTopic[],

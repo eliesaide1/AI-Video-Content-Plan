@@ -48,6 +48,19 @@ AI-Video-Content/
 
 ### Key decisions
 
+**Three interchangeable AI providers.** `AI_PROVIDER` selects one; business services depend on
+the `AIService` interface only, so switching costs nothing:
+
+| Provider | Auth | Use it for |
+| --- | --- | --- |
+| `claude-cli` | your Claude subscription, via the local Claude Code CLI | local development — no API billing. Needs `claude` installed and logged in; **tools are disabled** (`--tools ""`) because an agent CLI will otherwise spend its turn attempting a tool call and die with `error_max_turns` |
+| `anthropic` | `AI_API_KEY` | anything deployed; provider-enforced structured output |
+| `mock` | none | offline plumbing tests only |
+
+Structured output differs by provider — the API forces a tool schema, the CLI is asked for JSON
+and corrected once on failure — but **both run the same Zod validators**, so malformed output can
+never reach the application.
+
 **One AI abstraction.** Business services depend on the `AIService` interface only. Every AI call
 that feeds code uses *structured output* (a JSON Schema sent to the provider, then Zod validation on
 the way back) — never free-text parsing. With no `AI_API_KEY` set, a deterministic **mock provider**
@@ -188,7 +201,9 @@ npm run dev              # http://localhost:5173
 | `PORT` | backend | API port (default 4500) |
 | `MONGODB_URI` | backend | MongoDB connection string |
 | `CORS_ORIGIN` | backend | comma-separated allowed origins (any localhost port is allowed in dev) |
-| `AI_PROVIDER` / `AI_API_KEY` / `AI_MODEL` | backend | AI provider; **server-side only** |
+| `AI_PROVIDER` | backend | `claude-cli` \| `anthropic` \| `mock` (see above) |
+| `AI_API_KEY` / `AI_MODEL` | backend | API credentials and model; **server-side only** |
+| `AI_CLI_BINARY` / `AI_CLI_TIMEOUT_MS` | backend | `claude-cli` only: executable and per-call timeout |
 | `AI_MAX_OUTPUT_TOKENS` | backend | per-request output cap |
 | `GENERATED_ROOT` | backend | where generated markdown is written |
 | `DISCOVERY_RSS_FEEDS` | backend | engineering blogs — the richest teaching signal |
