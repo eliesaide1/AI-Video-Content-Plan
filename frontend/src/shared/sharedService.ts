@@ -15,8 +15,10 @@ import { io, type Socket } from 'socket.io-client';
  *   4. No API keys here. All provider keys stay server-side.
  */
 
+// `import.meta.env` is injected by Vite. The optional chain keeps this module
+// importable outside Vite too (unit tests, server-side rendering).
 export const API_BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:4500';
+  (import.meta.env?.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:4500';
 
 /* ==========================================================================
  *  Types mirrored from the backend
