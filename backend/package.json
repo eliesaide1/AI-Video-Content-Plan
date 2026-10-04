@@ -1,0 +1,31 @@
+{
+  "name": "ai-content-course-factory-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Content & Course Factory - backend (V1)",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "fast-xml-parser": "^5.2.5",
+    "mongoose": "^8.19.1",
+    "socket.io": "^4.8.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.23",
+    "@types/node": "^24.7.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

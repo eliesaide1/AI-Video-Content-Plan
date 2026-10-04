@@ -1,0 +1,13 @@
+{
+  "name": "ai-content-course-factory",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Content & Course Factory — V1 (discovery, research, course planning, lessons, teaser)",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "typecheck": "npm run typecheck --prefix backend && npm run typecheck --prefix frontend"
+  }
+}
