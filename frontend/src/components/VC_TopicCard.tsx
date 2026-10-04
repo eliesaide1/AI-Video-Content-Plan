@@ -41,6 +41,36 @@ export function VC_TopicCard({
 
       {topic.description ? <p className="vc-topic__description">{topic.description}</p> : null}
 
+      {topic.whatYouWillBuild ? (
+        <div className="vc-topic__build">
+          <span className="vc-topic__build-label">What you&apos;ll build</span>
+          <p className="vc-topic__build-text">{topic.whatYouWillBuild}</p>
+        </div>
+      ) : null}
+
+      {topic.whyNow || topic.whoBenefits ? (
+        <dl className="vc-topic__facts">
+          {topic.whoBenefits ? (
+            <div>
+              <dt>Who benefits</dt>
+              <dd>{topic.whoBenefits}</dd>
+            </div>
+          ) : null}
+          {topic.whyNow ? (
+            <div>
+              <dt>Why now</dt>
+              <dd>{topic.whyNow}</dd>
+            </div>
+          ) : null}
+        </dl>
+      ) : null}
+
+      {topic.prerequisites?.length ? (
+        <p className="vc-topic__prereqs">
+          <strong>Prerequisites:</strong> {topic.prerequisites.join(' · ')}
+        </p>
+      ) : null}
+
       {topic.rankingReasons.length ? (
         <ul className="vc-topic__reasons">
           {topic.rankingReasons.map((reason, index) => (

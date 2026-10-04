@@ -19,6 +19,12 @@ const topicSchema = new Schema(
     /** Normalised title used to detect duplicates / already-covered topics. */
     dedupeKey: { type: String, required: true, trim: true, lowercase: true },
     description: { type: String, default: '', trim: true, maxlength: 4000 },
+    /** The concrete thing a student has working when the course ends. A topic
+     *  without this is a lecture subject, not a course. */
+    whatYouWillBuild: { type: String, default: '', trim: true, maxlength: 1000 },
+    whoBenefits: { type: String, default: '', trim: true, maxlength: 500 },
+    whyNow: { type: String, default: '', trim: true, maxlength: 1000 },
+    prerequisites: { type: [String], default: [] },
     category: { type: String, default: 'general', trim: true, index: true },
     audience: { type: String, enum: values(Audience), default: Audience.Intermediate },
     desiredDepth: { type: String, enum: values(CourseDepth), default: CourseDepth.Medium },

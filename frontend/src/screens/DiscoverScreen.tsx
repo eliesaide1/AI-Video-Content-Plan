@@ -45,6 +45,7 @@ export function DiscoverScreen() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [whatYouWillBuild, setWhatYouWillBuild] = useState('');
   const [audience, setAudience] = useState<Audience>('intermediate-developers');
   const [depth, setDepth] = useState<CourseDepth>('medium');
   const [creating, setCreating] = useState(false);
@@ -119,6 +120,7 @@ export function DiscoverScreen() {
       await sharedService.createTopic({
         title,
         description: description || undefined,
+        whatYouWillBuild: whatYouWillBuild || undefined,
         audience,
         desiredDepth: depth,
       });
@@ -129,6 +131,7 @@ export function DiscoverScreen() {
       });
       setTitle('');
       setDescription('');
+      setWhatYouWillBuild('');
       await loadTopics();
     } catch {
       // Alert already shown.
@@ -161,7 +164,7 @@ export function DiscoverScreen() {
     <div className="vc-screen">
       <VC_PageHeader
         title="Discover"
-        description="Add a topic yourself or pull candidates from real sources, then approve what gets built."
+        description="Add a topic yourself or pull candidates from real sources, then approve what gets built. Every topic should be something a student can follow step by step to a working result."
         actions={<VC_Button onClick={runDiscovery}>Run discovery</VC_Button>}
       />
 
@@ -182,14 +185,23 @@ export function DiscoverScreen() {
             value={title}
             required
             minLength={5}
-            placeholder="Building AI Agents with MCP and Node.js"
+            placeholder="Build a pull-request review bot for your team"
+            hint="Phrase it as an outcome: Build… / Add… / Automate… / Fix…"
             onChange={(event) => setTitle(event.target.value)}
+          />
+          <VC_TextArea
+            label="What the student will build"
+            value={whatYouWillBuild}
+            rows={2}
+            placeholder="A bot running on their own repo that comments review notes on every pull request."
+            hint="The thing they have working at the end. This steers the whole course."
+            onChange={(event) => setWhatYouWillBuild(event.target.value)}
           />
           <VC_TextArea
             label="Description"
             value={description}
             rows={3}
-            placeholder="What should this course cover?"
+            placeholder="What problem does this solve, and how does the course solve it?"
             onChange={(event) => setDescription(event.target.value)}
           />
           <div className="vc-form__row">

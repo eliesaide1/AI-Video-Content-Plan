@@ -72,8 +72,17 @@ immediately; the pipeline continues in-process and pushes progress over socket.i
 progress reporting goes through `JobService`, Phase 5 can move execution into a BullMQ worker
 without touching the API or the UI.
 
-**Real retrieval, then AI.** Discovery fetches GitHub releases and RSS/Atom feeds, normalises and
-deduplicates them, and only then asks the AI to classify and rank what was actually retrieved.
+**Signals, not topics.** Discovery retrieves *signals* — engineering write-ups, community
+tutorials, trending repositories, stories developers are discussing, and major stable releases — and
+the AI's job is to propose what someone should **learn to build** because of them. A signal is
+evidence, never the topic: "next.js v16.4.0-canary.59" is a signal; "Add streaming AI responses to a
+Next.js app" is the course. Pre-releases and changelog-only bodies are dropped at the source, the
+signal mix is balanced across kinds, and a **quality gate** in `DiscoveryService` rejects any
+proposal shaped like a version number, an announcement, a repo name, or a theme with no concrete
+deliverable — logging every rejection rather than dropping it silently.
+
+Because turning signals into course ideas is pure synthesis, discovery **refuses to run** on the
+mock provider instead of echoing headlines back as fake topics.
 
 **Source provenance.** Research labels every claim as `verified-fact` / `ai-explanation` /
 `recommendation` / `assumption`, stores the supporting URLs, and writes `SOURCES.md` with retrieval
@@ -103,6 +112,7 @@ are the single source of truth and index creation is an observable startup step.
 | Collection | Index | Why |
 | --- | --- | --- |
 | `topics` | `status + score desc` | Discover screen lists candidates best-first |
+| | | *(topics also carry `whatYouWillBuild` / `whoBenefits` / `whyNow` / `prerequisites`)* |
 | | `discoveredAt desc` | newest-first browsing |
 | | `dedupeKey` **unique** | the same topic can never be stored twice |
 | | `title + description` **text** | similarity check against covered topics, `?search=` |
@@ -181,8 +191,10 @@ npm run dev              # http://localhost:5173
 | `AI_PROVIDER` / `AI_API_KEY` / `AI_MODEL` | backend | AI provider; **server-side only** |
 | `AI_MAX_OUTPUT_TOKENS` | backend | per-request output cap |
 | `GENERATED_ROOT` | backend | where generated markdown is written |
-| `DISCOVERY_RSS_FEEDS` | backend | comma-separated feed URLs |
-| `DISCOVERY_GITHUB_REPOS` | backend | comma-separated `owner/repo` list |
+| `DISCOVERY_RSS_FEEDS` | backend | engineering blogs — the richest teaching signal |
+| `DISCOVERY_TRENDING_TOPICS` | backend | subjects used to find trending repos and tutorials |
+| `DISCOVERY_HN_MIN_POINTS` | backend | minimum Hacker News score for a story to count |
+| `DISCOVERY_GITHUB_REPOS` | backend | optional `owner/repo` list watched for **major** releases |
 | `DISCOVERY_MAX_CANDIDATES` | backend | candidates per discovery run |
 | `GITHUB_TOKEN` | backend | optional, raises GitHub rate limits |
 | `VITE_API_BASE_URL` | frontend | backend base URL (the only frontend config; no keys) |

@@ -63,6 +63,11 @@ export interface Topic {
   _id: string;
   title: string;
   description: string;
+  /** The concrete thing the student has working at the end of the course. */
+  whatYouWillBuild: string;
+  whoBenefits: string;
+  whyNow: string;
+  prerequisites: string[];
   category: string;
   audience: Audience;
   desiredDepth: CourseDepth;
@@ -499,6 +504,7 @@ export const sharedService = {
   createTopic: (body: {
     title: string;
     description?: string;
+    whatYouWillBuild?: string;
     category?: string;
     audience?: Audience;
     desiredDepth?: CourseDepth;

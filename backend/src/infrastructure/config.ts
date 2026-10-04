@@ -46,14 +46,23 @@ export const config = {
   },
 
   discovery: {
+    /** Engineering blogs / "how we built X" writing — the richest signal. */
     rssFeeds: list('DISCOVERY_RSS_FEEDS', [
       'https://openai.com/blog/rss.xml',
       'https://github.blog/engineering.atom',
     ]),
-    githubRepos: list('DISCOVERY_GITHUB_REPOS', [
-      'anthropics/claude-code',
-      'modelcontextprotocol/servers',
+    /** Repos we follow for MAJOR releases only (patch/canary noise is dropped). */
+    githubRepos: list('DISCOVERY_GITHUB_REPOS', []),
+    /** Subjects used to query trending repos and community tutorials. */
+    trendingTopics: list('DISCOVERY_TRENDING_TOPICS', [
+      'ai-agents',
+      'llm',
+      'typescript',
+      'react',
+      'devops',
     ]),
+    /** Minimum Hacker News points for a story to count as a signal. */
+    hackerNewsMinPoints: num('DISCOVERY_HN_MIN_POINTS', 150),
     maxCandidates: num('DISCOVERY_MAX_CANDIDATES', 20),
     githubToken: str('GITHUB_TOKEN'),
   },

@@ -277,6 +277,29 @@ a { color: var(--accent); }
 .vc-topic__score-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .vc-topic__score { font-size: 24px; font-weight: 700; color: var(--accent); }
 .vc-topic__description { margin: 12px 0 0; color: var(--text); }
+.vc-topic__build {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--success);
+  background: rgba(53, 195, 137, 0.07);
+  border-radius: 0 8px 8px 0;
+}
+
+.vc-topic__build-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--success);
+}
+
+.vc-topic__build-text { margin: 4px 0 0; }
+
+.vc-topic__facts { margin: 12px 0 0; display: grid; gap: 6px; font-size: 13px; }
+.vc-topic__facts dt { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-dim); }
+.vc-topic__facts dd { margin: 2px 0 0; }
+.vc-topic__prereqs { margin: 10px 0 0; font-size: 12px; color: var(--text-dim); }
+
 .vc-topic__reasons { margin: 10px 0 0; padding-left: 20px; color: var(--text-dim); font-size: 13px; }
 .vc-topic__sources { margin: 10px 0 0; font-size: 12px; color: var(--text-dim); }
 .vc-topic__rejected { margin: 10px 0 0; font-size: 13px; color: var(--danger); }

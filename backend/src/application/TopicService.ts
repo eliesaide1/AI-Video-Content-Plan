@@ -16,6 +16,7 @@ const log = createLogger('topics');
 export interface CreateTopicInput {
   title: string;
   description?: string;
+  whatYouWillBuild?: string;
   category?: string;
   audience?: Audience;
   desiredDepth?: CourseDepth;
@@ -47,6 +48,7 @@ export class TopicService {
       title,
       dedupeKey,
       description: input.description?.trim() ?? '',
+      whatYouWillBuild: input.whatYouWillBuild?.trim() ?? '',
       category: input.category?.trim() || 'general',
       audience: input.audience ?? Audience.Intermediate,
       desiredDepth: input.desiredDepth ?? CourseDepth.Medium,

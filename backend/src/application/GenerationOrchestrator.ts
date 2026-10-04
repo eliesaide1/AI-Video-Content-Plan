@@ -1,3 +1,5 @@
+import { aiEnabled } from '../infrastructure/ai/index.js';
+import { AppError } from '../infrastructure/errors/AppError.js';
 import { createLogger } from '../infrastructure/logger.js';
 import {
   CourseStatus,
@@ -36,8 +38,17 @@ export interface StartedJob {
  * below stays exactly as it is.
  */
 export class GenerationOrchestrator {
-  /** Discovery run (sources -> ranked candidate topics). */
+  /** Discovery run (sources -> buildable candidate topics). */
   async startDiscovery(maxCandidates?: number): Promise<StartedJob> {
+    // Checked here as well as in the service so the user gets an immediate
+    // answer on click, instead of a job that appears to start and then fails.
+    if (!aiEnabled) {
+      throw new AppError(
+        'Discovery needs a real AI provider to turn sources into course ideas. Set AI_API_KEY in backend/.env and restart, or add a topic manually below.',
+        { statusCode: 400, code: 'AI_PROVIDER_REQUIRED', expose: true },
+      );
+    }
+
     const job = await jobService.create(JobType.Discovery, 'system');
 
     this.runDetached(job, async () => {
@@ -65,7 +76,6 @@ export class GenerationOrchestrator {
       await topicService.approve(topicId);
     }
     if (topic.status === TopicStatus.Rejected) {
-      const { AppError } = await import('../infrastructure/errors/AppError.js');
       throw AppError.badRequest('This topic was rejected. Approve it before generating.');
     }
 

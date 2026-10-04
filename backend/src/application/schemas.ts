@@ -43,6 +43,13 @@ export const rankedTopicZ = z.object({
   title: z.string().min(3).max(300),
   description: z.string().max(4000).default(''),
   category: z.string().max(80).default('general'),
+  /** The concrete thing the student has working at the end. */
+  whatYouWillBuild: z.string().max(1000).default(''),
+  /** Who gets value from it, in plain words. */
+  whoBenefits: z.string().max(500).default(''),
+  /** Why it is worth learning now, grounded in the signals. */
+  whyNow: z.string().max(1000).default(''),
+  prerequisites: z.array(z.string()).default([]),
   score: z.number().min(0).max(100),
   rankingReasons: z.array(z.string()).default([]),
   sourceUrls: z.array(z.string()).default([]),
@@ -65,12 +72,22 @@ export type RankedTopics = z.infer<typeof rankedTopicsZ>;
 
 const rankedTopicJson = obj(
   {
-    title: str('Short, specific course-worthy topic title'),
-    description: str('2-4 sentences describing what the topic covers and why it is interesting now'),
+    title: str(
+      'An outcome the student reaches, e.g. "Build a pull-request review bot that comments on your team\'s code". Never a version number, release or changelog.',
+    ),
+    description: str('2-4 sentences: the problem this solves and how the course solves it'),
     category: str('e.g. ai-agents, frontend, devops, databases, security'),
-    score: num('0-100 overall score combining recency, relevance, teachability and student value'),
+    whatYouWillBuild: str(
+      'The concrete artefact the student has working at the end, in one or two sentences. Must be something they can run on their own machine.',
+    ),
+    whoBenefits: str('Who gets value from this and how, in plain words'),
+    whyNow: str('Why this is worth learning now, grounded in the signals provided'),
+    prerequisites: strArray('What the student must already know before starting'),
+    score: num(
+      '0-100. Below 40 if a student cannot follow it step by step to a working result.',
+    ),
     rankingReasons: strArray('3-5 concrete reasons for the score'),
-    sourceUrls: strArray('URLs from the provided source list that support this topic'),
+    sourceUrls: strArray('URLs from the provided signals that justify this topic'),
     suggestedAudience: {
       type: 'string',
       enum: [
@@ -89,7 +106,20 @@ const rankedTopicJson = obj(
       description: 'How much material the topic genuinely needs',
     },
   },
-  ['title', 'description', 'category', 'score', 'rankingReasons', 'sourceUrls', 'suggestedAudience', 'suggestedDepth'],
+  [
+    'title',
+    'description',
+    'category',
+    'whatYouWillBuild',
+    'whoBenefits',
+    'whyNow',
+    'prerequisites',
+    'score',
+    'rankingReasons',
+    'sourceUrls',
+    'suggestedAudience',
+    'suggestedDepth',
+  ],
 );
 
 export const rankedTopicsJsonSchema: JsonSchema = obj(

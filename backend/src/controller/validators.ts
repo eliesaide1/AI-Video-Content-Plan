@@ -17,6 +17,7 @@ const depthEnum = z.enum(values(CourseDepth) as [string, ...string[]]);
 export const createTopicBody = z.object({
   title: z.string().trim().min(5, 'A topic title needs at least 5 characters').max(300),
   description: z.string().trim().max(4000).optional(),
+  whatYouWillBuild: z.string().trim().max(1000).optional(),
   category: z.string().trim().max(80).optional(),
   audience: audienceEnum.optional(),
   desiredDepth: depthEnum.optional(),

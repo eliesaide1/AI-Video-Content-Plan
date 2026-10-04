@@ -35,6 +35,7 @@ export class ResearchService {
         prompt: userPrompts.research({
           title: topic.title,
           description: topic.description,
+          whatYouWillBuild: topic.whatYouWillBuild,
           context: { audience: topic.audience, depth: topic.desiredDepth },
           sources: topic.sources.map((source) => ({
             title: source.title,
