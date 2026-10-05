@@ -142,6 +142,29 @@ about whether this matters to them. "You want to ask AI about your client contra
 are confidential, so today you either paste them into someone else's server or do without" puts
 them inside the problem in one sentence.
 
+THE BENEFIT HAS TO BE IN THE VIEWER'S LIFE, NOT THE TOOL'S FEATURE LIST
+These are real titles from the channel this content is for, with their view counts:
+
+  19k  Hermes Desktop — the new app you have to download right now
+  15k  Hermes Agent — stop searching, this is the only video you need
+  15k  OpenAI Astra 6 — an AI that uses the computer better than I do?
+  14k  Grok Bot — I built an entire company by myself and all my staff are AI
+   9k  Claude Cowork Plugins — your new employees have arrived
+   4k  Claude Fable 5 — it built 13 websites while I was asleep
+
+Look at what those promise. Not "supports parallel generation" but "it built 13 websites while
+I was asleep". Not "multi-agent orchestration" but "your new employees have arrived". The
+benefit is always something that happened to a person: work done for them, money not spent,
+staff they did not have to hire, a night they slept through.
+
+Apply the same test to every video you script. "Run a model locally" is a feature. "The AI bill
+you pay every month, gone, and it keeps working on a plane" is a benefit. "Ask questions about
+proprietary code" is a feature. "Use AI on your client's code without breaking the NDA you
+signed" is a benefit.
+
+If the viewer finishes the video and cannot say what they personally get out of installing
+this, the script has failed, however accurate it is.
+
 The rule that governs everything you write: never assert on screen what you could demonstrate
 instead. "Manual review is slow" is a claim. A list of the six things a person actually does by
 hand, with "30 min" beside it, is a demonstration. "Codex checks the document" is a claim. The
@@ -443,6 +466,7 @@ export const demoPrompt = {
     courseTitle: string;
     masterMarkdown: string;
     verifiedCommands: string[];
+    packaging?: { titleEnglish: string; hookLine: string } | null;
     context: AudienceContext;
   }): string {
     return `Write the scenes for a short demo video that shows ${input.toolName || 'this tool'}
@@ -453,6 +477,13 @@ TOOL: ${input.toolName || '(none named — the demo is about the technique)'}
 WHAT THE VIEWER ENDS UP WITH: ${input.whatYouWillBuild}
 CLAIMED RESULT: ${input.measurableOutcome || '(no number was claimed — do not invent one)'}
 COURSE: ${input.courseTitle}
+${
+  input.packaging?.titleEnglish
+    ? `THE TITLE THIS VIDEO WAS SOLD WITH: "${input.packaging.titleEnglish}"
+${input.packaging.hookLine ? `THE HOOK PROMISED: "${input.packaging.hookLine}"` : ''}
+The video must deliver exactly that promise. Keep the title scene consistent with it.`
+    : ''
+}
 
 ${audienceLine(input.context)}
 
@@ -476,8 +507,9 @@ ${truncate(input.masterMarkdown, 45_000)}
 
 Build the video in this order:
 
-1. "title" — what the viewer will be able to DO, in their words. The headline is an outcome,
-   never a feature list; the subhead says who it is for. Up to three short chips. 3-4 seconds.
+1. "title" — formatted as the channel formats titles: the tool name, then a dash, then what it
+   did for a person. "Ollama — the AI bill you pay every month, gone". Never a feature list.
+   The subhead says who it is for. Up to three short chips. 3-4 seconds.
 2. "stakes" — the reason to care. One concrete scenario they recognise being in, plus one to
    three things it costs them today (money, time, privacy, or a hard limit), with real numbers
    where the research supports one. This scene is what makes the rest worth watching, so write
@@ -494,9 +526,12 @@ Build the video in this order:
    ("$240/mo" vs "$0", "30 min" vs "4 min", "every file uploaded" vs "nothing leaves"). Vague
    pairs like "API key + billing" against "no key" are worthless: skip the scene entirely rather
    than write one. 4-6 seconds.
-7. "outcome" — what the viewer can now DO, 2-4 bullets. Each must be a capability in their
-   world ("ask questions about confidential documents without uploading them"), never an
-   attribute of the thing ("runs locally", "no API key"). 4-5 seconds.
+7. "outcome" — the concrete things the viewer gets out of having done this, 2-4 bullets. Each
+   must be a REAL JOB the tool now does for them, with the payoff attached: what they stop
+   paying, what gets built while they are not working, what they can take on that they could
+   not before. Name actual uses — "run your client's whole codebase through it under NDA",
+   "draft every product description for your store overnight for nothing" — not properties
+   like "runs locally" or "callable over HTTP". 5-6 seconds.
 8. "cta" — one line pointing at the course. It must NOT restate the title. 3 seconds.
 
 Hard rules:
@@ -508,6 +543,9 @@ Hard rules:
 - Total runtime should land between 35 and 70 seconds.
 - If a viewer could watch the whole video and still ask "so what does this help me with?",
   the stakes and outcome scenes have failed. Rewrite them.
+- Before you finish, read the title and the outcome bullets back and ask: does this sound like
+  "it built 13 websites while I was asleep", or does it sound like a feature list? If the
+  second, you are not done.
 - Narration is spoken over the scene: short sentences, no reading the screen aloud.`;
   },
 };

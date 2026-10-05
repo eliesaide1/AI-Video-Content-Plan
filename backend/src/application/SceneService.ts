@@ -44,6 +44,9 @@ export class SceneService {
         courseTitle: course.title,
         masterMarkdown,
         verifiedCommands,
+        packaging: topic.videoTitleEnglish
+          ? { titleEnglish: topic.videoTitleEnglish, hookLine: topic.hookLine }
+          : null,
         context: { audience: course.targetAudience, depth: course.desiredDepth },
       }),
       schemaName: 'demo_scenes',
