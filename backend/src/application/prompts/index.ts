@@ -254,6 +254,7 @@ Every topic must cite in sourceUrls the signal URLs that justify it.`;
     toolName?: string;
     toolUrl?: string;
     measurableOutcome?: string;
+    documentation?: { sourceUrl: string; text: string; commands: string[] } | null;
     context: AudienceContext;
     sources: { title: string; url: string; summary?: string; publishedAt?: Date }[];
   }): string {
@@ -287,6 +288,23 @@ ${audienceLine(input.context)}
 SOURCES AVAILABLE (retrieved ${new Date().toISOString().slice(0, 10)})
 ${sources}
 
+${
+  input.documentation
+    ? `THE TOOL'S OWN DOCUMENTATION (${input.documentation.sourceUrl}) — this is authoritative.
+Commands, flags and APIs must come from here, not from memory.
+${
+  input.documentation.commands.length
+    ? `Commands that appear verbatim in it:
+${input.documentation.commands.map((command) => `  $ ${command}`).join('\n')}
+`
+    : ''
+}
+---
+${truncate(input.documentation.text, 16_000)}
+---
+`
+    : ''
+}
 Fill every field of the requested structure. Be concrete and technical.
 
 Bias everything towards what is needed to BUILD the deliverable above: the setup, the moving
@@ -413,6 +431,7 @@ export const demoPrompt = {
     measurableOutcome: string;
     courseTitle: string;
     masterMarkdown: string;
+    verifiedCommands: string[];
     context: AudienceContext;
   }): string {
     return `Write the scenes for a short demo video that shows ${input.toolName || 'this tool'}
@@ -426,7 +445,20 @@ COURSE: ${input.courseTitle}
 
 ${audienceLine(input.context)}
 
-RESEARCH DOCUMENT — every command, code sample and number you use must come from here
+${
+  input.verifiedCommands.length
+    ? `COMMANDS TAKEN VERBATIM FROM THE TOOL'S OWN DOCUMENTATION.
+Terminal scenes must use these, copied exactly. Adapt only the parts that are obviously a
+placeholder (an API key, a file name, a model name). Do not invent a command that is not here.
+
+${input.verifiedCommands.map((command) => `  $ ${command}`).join('\n')}
+`
+    : `NO VERIFIED COMMANDS ARE AVAILABLE for this tool. Do NOT invent terminal commands — a
+viewer will type them and they will fail. Use a "code" scene or a "problem" scene instead of a
+"terminal" scene, or show only commands that are genuinely universal (git clone, npm install).`
+}
+
+RESEARCH DOCUMENT — every code sample and number you use must come from here
 ---
 ${truncate(input.masterMarkdown, 45_000)}
 ---
@@ -447,8 +479,8 @@ Build the video in this order:
 7. "cta" — one line pointing at the course. 3 seconds.
 
 Hard rules:
-- Commands must be ones a viewer can actually type. No pseudo-commands, no "<your-key-here>"
-  unless that is genuinely what they type.
+- Every terminal command must come from the verified list above, copied exactly. A command that
+  looks plausible but does not exist is the worst thing you can put in a tutorial.
 - Output must be plausible real output for that command, trimmed to the few lines that matter.
 - If the research does not support the claimed number, leave the comparison numbers to what IS
   supported, or describe the change qualitatively. Never invent a benchmark.

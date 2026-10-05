@@ -517,6 +517,8 @@ export const sharedService = {
     title: string;
     description?: string;
     whatYouWillBuild?: string;
+    toolName?: string;
+    toolUrl?: string;
     category?: string;
     audience?: Audience;
     desiredDepth?: CourseDepth;

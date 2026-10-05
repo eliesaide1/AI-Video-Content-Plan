@@ -227,13 +227,30 @@ export class GenerationOrchestrator {
 
       await jobService.markRunning(job, JobStage.GeneratingScenes, 25);
       await jobService.addLog(job, 'Turning the research into demo scenes...');
-      const { path, totalSeconds, script } = await sceneService.generateDemo(course, masterMarkdown);
+      const { path, totalSeconds, script, unverified } = await sceneService.generateDemo(
+        course,
+        masterMarkdown,
+      );
       await jobService.addLog(
         job,
         `${script.scenes.length} scene(s), ${totalSeconds}s — ${script.scenes.map((s) => s.type).join(' → ')}`,
       );
+      if (unverified.length) {
+        await jobService.addLog(
+          job,
+          `⚠ ${unverified.length} command(s) are not in the tool's documentation — verify before publishing: ${unverified.join(', ')}`,
+        );
+      } else {
+        await jobService.addLog(job, 'All terminal commands trace back to the tool documentation.');
+      }
 
-      return { courseId, scenesPath: path, totalSeconds, sceneCount: script.scenes.length };
+      return {
+        courseId,
+        scenesPath: path,
+        totalSeconds,
+        sceneCount: script.scenes.length,
+        unverifiedCommands: unverified,
+      };
     });
 
     return this.describe(job);

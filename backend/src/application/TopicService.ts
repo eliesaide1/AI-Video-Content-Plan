@@ -17,6 +17,9 @@ export interface CreateTopicInput {
   title: string;
   description?: string;
   whatYouWillBuild?: string;
+  /** Naming the tool lets ResearchService fetch its real documentation. */
+  toolName?: string;
+  toolUrl?: string;
   category?: string;
   audience?: Audience;
   desiredDepth?: CourseDepth;
@@ -49,6 +52,9 @@ export class TopicService {
       dedupeKey,
       description: input.description?.trim() ?? '',
       whatYouWillBuild: input.whatYouWillBuild?.trim() ?? '',
+      toolName: input.toolName?.trim() ?? '',
+      toolUrl: input.toolUrl?.trim() ?? '',
+      isFreeOrOpenSource: Boolean(input.toolUrl),
       category: input.category?.trim() || 'general',
       audience: input.audience ?? Audience.Intermediate,
       desiredDepth: input.desiredDepth ?? CourseDepth.Medium,

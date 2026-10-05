@@ -46,6 +46,8 @@ export function DiscoverScreen() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [whatYouWillBuild, setWhatYouWillBuild] = useState('');
+  const [toolName, setToolName] = useState('');
+  const [toolUrl, setToolUrl] = useState('');
   const [audience, setAudience] = useState<Audience>('intermediate-developers');
   const [depth, setDepth] = useState<CourseDepth>('medium');
   const [creating, setCreating] = useState(false);
@@ -121,6 +123,8 @@ export function DiscoverScreen() {
         title,
         description: description || undefined,
         whatYouWillBuild: whatYouWillBuild || undefined,
+        toolName: toolName || undefined,
+        toolUrl: toolUrl || undefined,
         audience,
         desiredDepth: depth,
       });
@@ -132,6 +136,8 @@ export function DiscoverScreen() {
       setTitle('');
       setDescription('');
       setWhatYouWillBuild('');
+      setToolName('');
+      setToolUrl('');
       await loadTopics();
     } catch {
       // Alert already shown.
@@ -204,6 +210,21 @@ export function DiscoverScreen() {
             placeholder="What problem does this solve, and how does the course solve it?"
             onChange={(event) => setDescription(event.target.value)}
           />
+          <div className="vc-form__row">
+            <VC_Input
+              label="Tool name"
+              value={toolName}
+              placeholder="Ollama"
+              onChange={(event) => setToolName(event.target.value)}
+            />
+            <VC_Input
+              label="Tool docs or repo URL"
+              value={toolUrl}
+              placeholder="https://github.com/ollama/ollama"
+              hint="Research reads the real docs from here, so commands in the video are real."
+              onChange={(event) => setToolUrl(event.target.value)}
+            />
+          </div>
           <div className="vc-form__row">
             <VC_Select
               label="Audience"

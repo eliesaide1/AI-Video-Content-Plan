@@ -31,6 +31,9 @@ const researchSchema = new Schema(
     sources: { type: [sourceRefSchema], default: [] },
     claims: { type: [claimSchema], default: [] },
     aiModel: { type: String, default: null },
+    /** Commands lifted verbatim from the tool's own documentation. */
+    verifiedCommands: { type: [String], default: [] },
+    documentationUrl: { type: String, default: null },
     error: { type: String, default: null },
   },
   { timestamps: true, collection: 'research' },

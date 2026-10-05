@@ -1,4 +1,5 @@
 import { aiService } from '../infrastructure/ai/index.js';
+import { documentationFetcher } from '../infrastructure/discovery/DocumentationFetcher.js';
 import { AppError } from '../infrastructure/errors/AppError.js';
 import { createLogger } from '../infrastructure/logger.js';
 import { contentPaths, storageService } from '../infrastructure/storage/index.js';
@@ -30,6 +31,15 @@ export class ResearchService {
     try {
       await topicService.setStatus(topic, TopicStatus.Researching);
 
+      // The tool's own docs are the only trustworthy source of commands and
+      // flags. Without them the model fills the gap with plausible inventions.
+      const documentation = await documentationFetcher.fetchForTool(topic.toolName, topic.toolUrl);
+      if (documentation?.commands.length) {
+        log.info(
+          `${documentation.commands.length} verified command(s) from ${documentation.sourceUrl}`,
+        );
+      }
+
       const { value, model } = await aiService.generateStructuredOutput({
         system: systemPrompts.research,
         prompt: userPrompts.research({
@@ -39,6 +49,7 @@ export class ResearchService {
           toolName: topic.toolName,
           toolUrl: topic.toolUrl,
           measurableOutcome: topic.measurableOutcome,
+          documentation,
           context: { audience: topic.audience, depth: topic.desiredDepth },
           sources: topic.sources.map((source) => ({
             title: source.title,
@@ -98,6 +109,9 @@ export class ResearchService {
           retrievedAt: new Date(),
         })),
         aiModel: model,
+        // Kept so the demo can require commands to come from the docs.
+        verifiedCommands: documentation?.commands ?? [],
+        documentationUrl: documentation?.sourceUrl ?? null,
         error: null,
       });
       await research.save();

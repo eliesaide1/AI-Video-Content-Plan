@@ -18,6 +18,9 @@ export const createTopicBody = z.object({
   title: z.string().trim().min(5, 'A topic title needs at least 5 characters').max(300),
   description: z.string().trim().max(4000).optional(),
   whatYouWillBuild: z.string().trim().max(1000).optional(),
+  /** Naming the tool lets research fetch its real documentation. */
+  toolName: z.string().trim().max(120).optional(),
+  toolUrl: z.string().trim().url('The tool URL must be a valid URL').max(500).optional(),
   category: z.string().trim().max(80).optional(),
   audience: audienceEnum.optional(),
   desiredDepth: depthEnum.optional(),
