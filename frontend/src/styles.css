@@ -277,6 +277,90 @@ a { color: var(--accent); }
 .vc-topic__score-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .vc-topic__score { font-size: 24px; font-weight: 700; color: var(--accent); }
 .vc-topic__description { margin: 12px 0 0; color: var(--text); }
+/* --- "as a video": how the topic would appear to a viewer --- */
+
+.vc-video {
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(79, 140, 255, 0.1), rgba(79, 140, 255, 0.03));
+  border: 1px solid rgba(79, 140, 255, 0.28);
+}
+
+.vc-video__tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.vc-video__title-ar {
+  margin: 8px 0 0;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.5;
+  /* dir="auto" on the element puts Arabic on the right and Latin on the left. */
+}
+
+.vc-video__title-en {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.vc-video__thumb { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+
+.vc-video__chip {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #0f1115;
+  background: var(--warning);
+  border-radius: 5px;
+  padding: 4px 9px;
+}
+
+.vc-video__hook {
+  margin: 12px 0 0;
+  padding: 0 0 0 12px;
+  border-left: 3px solid var(--accent);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.vc-video__hook-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.vc-topic__divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.vc-topic__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
 .vc-topic__outcome {
   margin: 12px 0 0;
   display: flex;

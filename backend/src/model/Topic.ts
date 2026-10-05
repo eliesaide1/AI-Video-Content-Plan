@@ -29,6 +29,14 @@ const topicSchema = new Schema(
     /** The quantified payoff that makes the hook, e.g. "70% fewer tokens". */
     measurableOutcome: { type: String, default: '', trim: true, maxlength: 500 },
     credibilityAnchor: { type: String, default: '', trim: true, maxlength: 500 },
+
+    /* --- how this topic would appear as a video --- */
+    videoTitleArabic: { type: String, default: '', trim: true, maxlength: 200 },
+    videoTitleEnglish: { type: String, default: '', trim: true, maxlength: 200 },
+    /** Three short punches for the thumbnail, separated by " | ". */
+    thumbnailText: { type: String, default: '', trim: true, maxlength: 120 },
+    /** The spoken opener, first five seconds. */
+    hookLine: { type: String, default: '', trim: true, maxlength: 400 },
     whoBenefits: { type: String, default: '', trim: true, maxlength: 500 },
     whyNow: { type: String, default: '', trim: true, maxlength: 1000 },
     prerequisites: { type: [String], default: [] },

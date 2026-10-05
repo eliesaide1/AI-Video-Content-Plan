@@ -54,6 +54,16 @@ export const rankedTopicZ = z.object({
   measurableOutcome: z.string().max(500).default(''),
   /** Who or what makes this credible: a known person, company, or established idea. */
   credibilityAnchor: z.string().max(500).default(''),
+
+  /* --- how the topic would actually appear as a video --- */
+  /** The title as it would sit under the thumbnail, in Arabic. */
+  videoTitleArabic: z.string().max(200).default(''),
+  /** The same title in English. */
+  videoTitleEnglish: z.string().max(200).default(''),
+  /** Three short punches for the thumbnail, e.g. "125B | ONE GPU | 100 tok/s". */
+  thumbnailText: z.string().max(120).default(''),
+  /** The spoken opener, first five seconds. */
+  hookLine: z.string().max(400).default(''),
   /** Who gets value from it, in plain words. */
   whoBenefits: z.string().max(500).default(''),
   /** Why it is worth learning now, grounded in the signals. */
@@ -104,6 +114,16 @@ const rankedTopicJson = obj(
     credibilityAnchor: str(
       'Why a viewer should believe this matters: a known engineer who advocated the idea, a company using it in production, or an established technique it implements. Empty string if there is none.',
     ),
+    videoTitleArabic: str(
+      'The video title in Arabic, written the way a Levantine creator speaks (not formal MSA). First person, curiosity plus result. Keep tool names, product names and technical terms in Latin script. Example style: "Graphify – جربتها على مشروع كامل وانصدمت بالنتيجة".',
+    ),
+    videoTitleEnglish: str('The same title in English, equally click-worthy and equally honest.'),
+    thumbnailText: str(
+      'Three short punches separated by " | ", all caps where natural, that read in under a second on a phone. Put the number in it. Example: "125B | ONE GPU | 100 TOK/S".',
+    ),
+    hookLine: str(
+      'The first five seconds, spoken aloud. State the claim nobody believes, then promise the proof. Two sentences maximum. Example: "Everyone says you need an H100 for this. I ran it on a 4090 — here is the benchmark."',
+    ),
     whoBenefits: str('Who gets value from this and how, in plain words'),
     whyNow: str('Why this is worth learning now, grounded in the signals provided'),
     prerequisites: strArray('What the student must already know before starting'),
@@ -140,6 +160,10 @@ const rankedTopicJson = obj(
     'isFreeOrOpenSource',
     'measurableOutcome',
     'credibilityAnchor',
+    'videoTitleArabic',
+    'videoTitleEnglish',
+    'thumbnailText',
+    'hookLine',
     'whoBenefits',
     'whyNow',
     'prerequisites',

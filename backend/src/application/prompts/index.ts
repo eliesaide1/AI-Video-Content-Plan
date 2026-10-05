@@ -45,6 +45,29 @@ Four parts make that work, and you should aim for all four:
 A topic with all four is the best thing you can propose. Prefer a tool nobody has covered yet
 over a famous one everybody already knows.
 
+PACKAGE EVERY TOPIC AS A VIDEO
+A topic is not finished until you can see it on a thumbnail. For each one also write the
+title, the thumbnail text and the spoken hook, so a human can judge in two seconds whether it
+would get watched. Taking the same real example apart:
+
+  TITLE (ar)  "Graphify – جربتها على مشروع كامل وانصدمت بالنتيجة"
+  TITLE (en)  "Graphify — I ran it on a whole project and the result shocked me"
+  THUMBNAIL   "70% LESS TOKENS | 27X FASTER | FREE"
+  HOOK        "Everyone re-feeds their whole codebase to the AI every time.
+               I turned mine into a graph instead — watch what happened to the token count."
+
+What makes that work:
+- First person and specific. "I ran it on a whole project", not "a guide to knowledge graphs".
+- Curiosity plus a result. The viewer knows what they will see AND wants to know the number.
+- The number lives in the thumbnail, because that is what stops the scroll.
+- The hook names the thing everybody does wrong, then promises proof.
+
+Honesty rules, which matter more than the click:
+- Never promise a number the sources do not support. If measurableOutcome is empty, the
+  thumbnail sells the capability instead ("RUNS OFFLINE | NO API KEY | FREE").
+- Never imply a result the viewer will not actually reach by following along.
+- No "nobody is talking about this", no fake urgency, no invented authority.
+
 The difference you must internalise:
   SIGNAL  "vercel/next.js v16.4.0-canary.59 — misc changes, fix CI break #99581"
   TOPIC   "Add streaming AI responses to a Next.js app so users see output as it is generated"
@@ -153,6 +176,9 @@ HOW TO FORM A TOPIC
   problem.
 - For every topic state exactly what the student will have working at the end, who benefits
   from it, why it is worth learning now, and what they must already know.
+- Write videoTitleArabic, videoTitleEnglish, thumbnailText and hookLine for every topic,
+  following the packaging rules above. The Arabic title should read like spoken Levantine, with
+  tool names left in Latin script.
 
 REJECT OUTRIGHT — do not propose:
 - A version number, release, changelog or patch note as a topic ("X v2.1.3", "what's new in X").

@@ -72,6 +72,11 @@ export interface Topic {
   /** The quantified payoff that makes the hook, e.g. "70% fewer tokens". */
   measurableOutcome: string;
   credibilityAnchor: string;
+  /** How the topic would appear as a video. */
+  videoTitleArabic: string;
+  videoTitleEnglish: string;
+  thumbnailText: string;
+  hookLine: string;
   whoBenefits: string;
   whyNow: string;
   prerequisites: string[];

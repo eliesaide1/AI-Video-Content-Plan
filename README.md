@@ -94,6 +94,15 @@ records `toolName`, `toolUrl`, `isFreeOrOpenSource`, `measurableOutcome` and `cr
 The number is the hook, so it must come from the sources — the prompt forbids inventing one, and
 topics legitimately leave it empty.
 
+**Every topic is packaged as a video.** A topic record is not something you can judge, so each
+one also carries `videoTitleArabic`, `videoTitleEnglish`, `thumbnailText` and `hookLine` — the
+title as it would sit under the thumbnail, the three punches that read in a second on a phone,
+and the spoken first five seconds. The Discover card leads with that packaging and puts the
+internal record below it, so the question "would anyone watch this?" is answerable at a glance.
+The honesty rules are part of the prompt: no number the sources do not support, no result the
+viewer will not actually reach, and when there is no number the thumbnail sells the capability
+instead.
+
 **Signals, not topics.** Discovery retrieves *signals* — engineering write-ups, community
 tutorials, trending repositories, stories developers are discussing, and major stable releases — and
 the AI's job is to propose what someone should **learn to build** because of them. A signal is

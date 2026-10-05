@@ -23,6 +23,13 @@ export function VC_TopicCard({
   onOpenResearch,
 }: Props) {
   const researched = topic.status === 'researched' || topic.status === 'course-generated';
+  const hasPackaging = Boolean(
+    topic.videoTitleArabic || topic.videoTitleEnglish || topic.thumbnailText || topic.hookLine,
+  );
+  // "125B | ONE GPU | 100 TOK/S" -> three chips.
+  const thumbnailChips = topic.thumbnailText
+    ? topic.thumbnailText.split('|').map((part) => part.trim()).filter(Boolean)
+    : [];
 
   return (
     <article className="vc-topic">
@@ -38,6 +45,42 @@ export function VC_TopicCard({
           <VC_Badge value={topic.status} />
         </div>
       </header>
+
+      {/* How this topic would actually appear to a viewer. */}
+      {hasPackaging ? (
+        <section className="vc-video">
+          <span className="vc-video__tag">As a video</span>
+
+          {topic.videoTitleArabic ? (
+            <p className="vc-video__title-ar" dir="auto" lang="ar">
+              {topic.videoTitleArabic}
+            </p>
+          ) : null}
+
+          {topic.videoTitleEnglish ? (
+            <p className="vc-video__title-en">{topic.videoTitleEnglish}</p>
+          ) : null}
+
+          {thumbnailChips.length ? (
+            <div className="vc-video__thumb" aria-label="Thumbnail text">
+              {thumbnailChips.map((chip, index) => (
+                <span className="vc-video__chip" key={index}>
+                  {chip}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          {topic.hookLine ? (
+            <blockquote className="vc-video__hook">
+              <span className="vc-video__hook-label">Hook · first 5s</span>
+              {topic.hookLine}
+            </blockquote>
+          ) : null}
+        </section>
+      ) : null}
+
+      {hasPackaging ? <div className="vc-topic__divider">the record</div> : null}
 
       {topic.description ? <p className="vc-topic__description">{topic.description}</p> : null}
 
