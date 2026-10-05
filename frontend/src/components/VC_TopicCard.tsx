@@ -41,6 +41,33 @@ export function VC_TopicCard({
 
       {topic.description ? <p className="vc-topic__description">{topic.description}</p> : null}
 
+      {topic.measurableOutcome ? (
+        <p className="vc-topic__outcome">
+          <span className="vc-topic__outcome-icon" aria-hidden="true">
+            ↗
+          </span>
+          {topic.measurableOutcome}
+        </p>
+      ) : null}
+
+      {topic.toolName ? (
+        <p className="vc-topic__tool">
+          <span className="vc-topic__tool-label">Tool</span>
+          {topic.toolUrl ? (
+            <a href={topic.toolUrl} target="_blank" rel="noreferrer noopener">
+              {topic.toolName}
+            </a>
+          ) : (
+            <span>{topic.toolName}</span>
+          )}
+          {topic.isFreeOrOpenSource ? (
+            <span className="vc-topic__free">free / open source</span>
+          ) : (
+            <span className="vc-topic__paid">may be paid</span>
+          )}
+        </p>
+      ) : null}
+
       {topic.whatYouWillBuild ? (
         <div className="vc-topic__build">
           <span className="vc-topic__build-label">What you&apos;ll build</span>
@@ -60,6 +87,12 @@ export function VC_TopicCard({
             <div>
               <dt>Why now</dt>
               <dd>{topic.whyNow}</dd>
+            </div>
+          ) : null}
+          {topic.credibilityAnchor ? (
+            <div>
+              <dt>Why believe it</dt>
+              <dd>{topic.credibilityAnchor}</dd>
             </div>
           ) : null}
         </dl>

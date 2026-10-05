@@ -24,6 +24,27 @@ Your job is to propose course topics that a student can FOLLOW STEP BY STEP and 
 something working that they actually benefit from — a tool they use, a feature they ship, a
 skill they can apply at work the same week.
 
+THE SHAPE THAT WORKS BEST
+The strongest topic is a specific free tool, run on a real project, with a surprising
+measurable result. Here is a real example of the format, broken into its parts:
+
+  "Graphify — I ran it on a whole project and the result shocked me"
+    TOOL         Graphify, free and open source (github.com/safishamsi/graphify)
+    WHAT IT DOES turns any project folder into a knowledge graph an AI can search,
+                 instead of re-reading raw files every time
+    CREDIBILITY  it implements the idea Karpathy has been advocating
+    RESULT       about 70% fewer tokens, answers roughly 27x faster
+    PROOF        the presenter runs it on a complete real project, on camera
+
+Four parts make that work, and you should aim for all four:
+  1. A NAMED TOOL the viewer can install today, ideally free or open source.
+  2. A REAL PROJECT it is applied to — not a toy example.
+  3. A CREDIBILITY ANCHOR: a known engineer, a company running it, or an established idea.
+  4. A MEASURABLE RESULT with an actual number. The number is the hook.
+
+A topic with all four is the best thing you can propose. Prefer a tool nobody has covered yet
+over a famous one everybody already knows.
+
 The difference you must internalise:
   SIGNAL  "vercel/next.js v16.4.0-canary.59 — misc changes, fix CI break #99581"
   TOPIC   "Add streaming AI responses to a Next.js app so users see output as it is generated"
@@ -34,8 +55,8 @@ The difference you must internalise:
   SIGNAL  "Netflix engineering: how we cut cold starts in our Java services"
   TOPIC   "Diagnose and fix slow cold starts in your own serverless functions"
 
-Nobody will watch a course about a version number. They will watch a course that solves a
-problem they have.
+Nobody will watch a course about a version number. They will watch a course that hands them a
+tool, shows it working on something real, and proves it was worth their time.
 ${ACCURACY_RULES}`,
 
   research: `You are a senior software architect and technical researcher preparing the knowledge base for a course.
@@ -114,12 +135,22 @@ ${covered}
 Propose up to ${input.maxCandidates} course topics, best first.
 
 HOW TO FORM A TOPIC
-- Read the signals for what they reveal about what developers are doing, struggling with, or
-  adopting. Then propose what someone should LEARN TO BUILD because of it.
-- Phrase every title as an outcome the student reaches: "Build ...", "Add ... to your app",
-  "Automate ...", "Migrate ... to ...", "Debug and fix ...".
+- Look hardest at the "new-tool" and "tool-launch" signals. Those are free tools that did not
+  exist a few months ago, and "here is a new free tool, watch it work on a real project" is the
+  format we want most.
+- For a tool-centric topic, fill in toolName, toolUrl and isFreeOrOpenSource, and say in
+  whatYouWillBuild what real project the viewer applies it to.
+- measurableOutcome is the hook. Take the number from the signals — a README's own benchmark,
+  a star count, a stated speedup, a cost saving. If the signals contain no number, leave it
+  empty. NEVER invent a number; a fabricated benchmark in educational content is unforgivable.
+- credibilityAnchor is why a viewer should believe it: the known engineer behind the idea, a
+  company using it, or the established technique it implements. Leave empty if there is none.
+- Non-tool topics are still allowed when the signals point at a real problem worth solving,
+  but they need a strong reason to beat a good tool topic.
+- Phrase every title as an outcome the viewer reaches: "Build ...", "Add ... to your app",
+  "Automate ...", "Run ... on your own hardware", "Cut ... by ...".
 - The best topics combine two or more signals, or apply a new capability to an everyday
-  problem. A single signal rarely makes a whole course.
+  problem.
 - For every topic state exactly what the student will have working at the end, who benefits
   from it, why it is worth learning now, and what they must already know.
 
@@ -131,15 +162,19 @@ REJECT OUTRIGHT — do not propose:
 - Vague themes with no concrete deliverable ("Understanding AI", "Intro to the cloud").
 
 SCORE 0-100, weighing in this order:
-1. Can a student follow it step by step on their own machine and finish with a working result?
+1. Can a viewer follow it step by step on their own machine and finish with a working result?
 2. Is that result genuinely useful to them afterwards?
-3. Does it demonstrate well on video (something visibly happens)?
-4. Is there a real project to build around it?
-5. Recency and relevance of the underlying signals.
+3. Does it demonstrate well on video (something visibly happens, with a number at the end)?
+4. Is it built around a specific free tool they can install today?
+5. Recency: is this tool or technique new enough that few people have covered it?
 6. Reliability of the sources.
 7. Dissimilarity from the already-covered list.
 
-A topic that cannot be followed step by step scores below 40 no matter how interesting it is.
+Calibration:
+- All four parts of the winning shape (free tool + real project + credibility + a real number): 85-95.
+- A free tool applied to a real project, but no hard number: 70-84.
+- A genuinely useful build with no specific tool behind it: 55-69.
+- Cannot be followed step by step to a working result: below 40, no matter how interesting.
 
 Every topic must cite in sourceUrls the signal URLs that justify it.`;
   },
@@ -149,6 +184,9 @@ Every topic must cite in sourceUrls the signal URLs that justify it.`;
     title: string;
     description: string;
     whatYouWillBuild?: string;
+    toolName?: string;
+    toolUrl?: string;
+    measurableOutcome?: string;
     context: AudienceContext;
     sources: { title: string; url: string; summary?: string; publishedAt?: Date }[];
   }): string {
@@ -168,6 +206,14 @@ Every topic must cite in sourceUrls the signal URLs that justify it.`;
 TOPIC: ${input.title}
 DESCRIPTION: ${input.description || '(none provided)'}
 WHAT THE STUDENT WILL BUILD: ${input.whatYouWillBuild || '(derive a concrete deliverable from the topic)'}
+${
+  input.toolName
+    ? `TOOL AT THE CENTRE: ${input.toolName}${input.toolUrl ? ` (${input.toolUrl})` : ''}
+Research the tool itself as well as the topic: how to install it, how to run it on a real
+project, what its own documentation claims, where it breaks, and what it does NOT do.
+${input.measurableOutcome ? `CLAIMED RESULT TO VERIFY: ${input.measurableOutcome} — say plainly whether the sources support this number, and how a viewer could measure it themselves.` : ''}`
+    : ''
+}
 
 ${audienceLine(input.context)}
 

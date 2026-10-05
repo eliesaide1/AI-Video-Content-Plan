@@ -103,8 +103,12 @@ export class DiscoveryService {
 
     const result = await this.persistCandidates(proposed, considered, runId, rejected);
 
+    const fullShape = proposed.filter(
+      (topic) => topic.toolName && topic.isFreeOrOpenSource && topic.measurableOutcome,
+    ).length;
     log.info(
-      `discovery ${runId} done: ${result.created} created, ${result.skippedAsDuplicate} duplicate(s), ${rejected.length} rejected by the quality gate`,
+      `discovery ${runId} done: ${result.created} created (${fullShape} with a free tool AND a measurable result), ` +
+        `${result.skippedAsDuplicate} duplicate(s), ${rejected.length} rejected by the quality gate`,
     );
     realtime.emit(RealtimeEvent.DiscoveryCompleted, result);
     return result;
@@ -145,6 +149,11 @@ export class DiscoveryService {
         dedupeKey,
         description: candidate.description,
         whatYouWillBuild: candidate.whatYouWillBuild,
+        toolName: candidate.toolName,
+        toolUrl: candidate.toolUrl,
+        isFreeOrOpenSource: candidate.isFreeOrOpenSource,
+        measurableOutcome: candidate.measurableOutcome,
+        credibilityAnchor: candidate.credibilityAnchor,
         whoBenefits: candidate.whoBenefits,
         whyNow: candidate.whyNow,
         prerequisites: candidate.prerequisites,
@@ -207,21 +216,32 @@ function balancedSelection(items: SourceItem[], limit: number): SourceItem[] {
  * it can reach a human for approval.
  * ------------------------------------------------------------------------ */
 
-/** "X v2.1.3", "release 4.0", "v16.4.0-canary.59", "2024.1". */
-const VERSION_SHAPED = /\bv?\d+\.\d+(\.\d+)?\b|canary|nightly|\balpha\b|\bbeta\b|\brc\d/i;
+/**
+ * Version-shaped titles: "X v2.1.3", "v16.4.0-canary.59", "release 4.0".
+ *
+ * Deliberately NOT a bare `\d+\.\d+` — that rejected "Run a 2.78-trillion-
+ * parameter LLM on nothing but your CPU", where the decimal is a quantity, not
+ * a version. A version needs a `v` prefix, three components, or a
+ * pre-release word.
+ */
+const VERSION_SHAPED =
+  /\bv\d+\.\d+|\b\d+\.\d+\.\d+\b|canary|nightly|\balpha\b|\bbeta\b|\brc\d/i;
 /** Titles that announce rather than teach. */
 const ANNOUNCEMENT = /^(what'?s new|release notes?|changelog|introducing|announcing|.+ releases? .+)/i;
 /** "owner/repo ..." — a repository name is not a course title. */
 const REPO_SHAPED = /^[\w.-]+\/[\w.-]+(\s|$)/;
 /**
- * A buildable topic contains a verb describing what the student DOES.
- * This is a backstop, not the main guard — the version/announcement/deliverable
- * checks do the real work — so the list stays generous. A missing verb once
- * cost us "Run a private, fully offline AI coding assistant on your own
- * hardware", which is exactly the kind of topic we want.
+ * Titles that promise understanding rather than a result.
+ *
+ * This replaced an allow-list of "building" verbs, which was the wrong shape:
+ * every run turned up a legitimate verb the list lacked ("run", "host", then
+ * "edit"), and each miss threw away a good topic. Naming the small, closed set
+ * of non-action phrasings is both more precise and stable.
  */
-const OUTCOME_VERB =
-  /\b(build|create|add|automate|migrate|deploy|ship|run|host|self-host|serve|debug|fix|integrate|connect|design|implement|set up|refactor|optimi[sz]e|secure|test|scale|replace|extend|generate|turn|train|package|publish|profile|containeri[sz]e|instrument|monitor|harden|benchmark|stream|convert|write|wire|schedule|cache|track|launch|tame|handle)\b/i;
+const NON_ACTION = [
+  /^(understanding|introduction to|intro to|an? (brief )?(guide|overview|primer|introduction)|the basics of|basics of|fundamentals of|what is|what are|why .+ matters?|the future of|the state of|everything you need to know|deep dive into|exploring|a look at|thoughts on|notes on)\b/i,
+  /\b(explained|demystified|in a nutshell|101)\s*$/i,
+];
 
 export function applyQualityGate(
   candidates: RankedTopic[],
@@ -252,8 +272,8 @@ function rejectionReason(
   if (VERSION_SHAPED.test(title)) return 'the title contains a version number or pre-release tag';
   if (ANNOUNCEMENT.test(title)) return 'the title announces a release rather than teaching something';
   if (REPO_SHAPED.test(title)) return 'the title is a repository name';
-  if (!OUTCOME_VERB.test(title)) {
-    return 'the title does not describe something the student builds or does';
+  if (NON_ACTION.some((pattern) => pattern.test(title))) {
+    return 'the title promises understanding rather than a result the viewer reaches';
   }
   if (!candidate.whatYouWillBuild.trim()) {
     return 'no concrete deliverable — the student would finish with nothing to show';

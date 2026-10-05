@@ -67,6 +67,11 @@ export const config = {
     ]),
     /** Minimum Hacker News points for a story to count as a signal. */
     hackerNewsMinPoints: num('DISCOVERY_HN_MIN_POINTS', 150),
+    /**
+     * Star floor for NEW repositories (created in the last 90 days). Kept low
+     * on purpose: a tool worth a video is often only a few hundred stars old.
+     */
+    newToolMinStars: num('DISCOVERY_NEW_TOOL_MIN_STARS', 80),
     maxCandidates: num('DISCOVERY_MAX_CANDIDATES', 20),
     githubToken: str('GITHUB_TOKEN'),
   },

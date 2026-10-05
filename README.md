@@ -85,6 +85,15 @@ immediately; the pipeline continues in-process and pushes progress over socket.i
 progress reporting goes through `JobService`, Phase 5 can move execution into a BullMQ worker
 without touching the API or the UI.
 
+**The topic shape we hunt for.** The strongest topic is a *specific free tool, run on a real
+project, with a surprising measurable result* — "here is a free tool, I ran it on a whole
+project, here is what happened". Discovery is tuned end to end for that shape: `new-tool`
+(repositories created in the last 90 days with a low star floor, so small new tools surface
+instead of `microsoft/vscode`) and `tool-launch` (Show HN) rank above commentary, and each topic
+records `toolName`, `toolUrl`, `isFreeOrOpenSource`, `measurableOutcome` and `credibilityAnchor`.
+The number is the hook, so it must come from the sources — the prompt forbids inventing one, and
+topics legitimately leave it empty.
+
 **Signals, not topics.** Discovery retrieves *signals* — engineering write-ups, community
 tutorials, trending repositories, stories developers are discussing, and major stable releases — and
 the AI's job is to propose what someone should **learn to build** because of them. A signal is
@@ -209,6 +218,7 @@ npm run dev              # http://localhost:5173
 | `DISCOVERY_RSS_FEEDS` | backend | engineering blogs — the richest teaching signal |
 | `DISCOVERY_TRENDING_TOPICS` | backend | subjects used to find trending repos and tutorials |
 | `DISCOVERY_HN_MIN_POINTS` | backend | minimum Hacker News score for a story to count |
+| `DISCOVERY_NEW_TOOL_MIN_STARS` | backend | star floor for repos created in the last 90 days (kept low on purpose) |
 | `DISCOVERY_GITHUB_REPOS` | backend | optional `owner/repo` list watched for **major** releases |
 | `DISCOVERY_MAX_CANDIDATES` | backend | candidates per discovery run |
 | `GITHUB_TOKEN` | backend | optional, raises GitHub rate limits |

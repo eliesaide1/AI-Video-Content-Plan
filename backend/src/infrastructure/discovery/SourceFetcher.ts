@@ -25,11 +25,19 @@ export interface SourceItem {
 }
 
 export type SignalKind =
-  /** "How we built X" engineering writing — the best teaching signal. */
+  /**
+   * A newly released free/open-source tool someone can install today.
+   * The strongest signal we have: "here is a free tool, I ran it on a real
+   * project, here is the result" is the format that actually gets watched.
+   */
+  | 'new-tool'
+  /** Someone launching their own tool (Show HN) — a new-tool signal with an audience reaction attached. */
+  | 'tool-launch'
+  /** "How we built X" engineering writing. */
   | 'engineering-article'
   /** A community tutorial people actually read. */
   | 'tutorial'
-  /** A repo gaining traction — something learners could build with. */
+  /** An established repo gaining traction. */
   | 'trending-project'
   /** A story developers are discussing right now. */
   | 'discussion'
@@ -50,6 +58,8 @@ const ISSUE_REF = /#\d+/g;
 export class SourceFetcher {
   async fetchAll(): Promise<SourceItem[]> {
     const tasks: Promise<SourceItem[]>[] = [
+      this.fetchNewTools(),
+      this.fetchShowHN(),
       this.fetchHackerNews(),
       this.fetchDevToTutorials(),
       this.fetchTrendingRepositories(),
@@ -92,6 +102,8 @@ export class SourceFetcher {
     return payload.hits
       .filter((hit) => hit.url && hit.title)
       .filter((hit) => !isJobOrMetaPost(hit.title))
+      // Show HN is fetched separately as a tool-launch signal.
+      .filter((hit) => !/^show hn/i.test(hit.title.trim()))
       .map((hit) => ({
         title: clean(hit.title),
         url: hit.url as string,
@@ -99,6 +111,76 @@ export class SourceFetcher {
         origin: `hn:${safeHost(hit.url as string)}`,
         kind: 'discussion' as const,
         weight: hit.points ?? 0,
+        publishedAt: hit.created_at ? new Date(hit.created_at) : undefined,
+        retrievedAt,
+      }));
+  }
+
+  /**
+   * Newly created repositories gaining stars fast.
+   *
+   * This is the signal that finds tools like Graphify: small, new, free, and
+   * spreading. The established-repo query cannot find them — it surfaces
+   * microsoft/vscode. Here the star bar is low and the age window is short, so
+   * what comes back is "a tool that did not exist last quarter".
+   */
+  private async fetchNewTools(): Promise<SourceItem[]> {
+    const createdAfter = new Date(Date.now() - 1000 * 60 * 60 * 24 * 90)
+      .toISOString()
+      .slice(0, 10);
+    const topics = config.discovery.trendingTopics.slice(0, 4);
+
+    const requests = topics.map(async (topic) => {
+      const query = `topic:${topic} created:>${createdAfter} stars:>${config.discovery.newToolMinStars}`;
+      const response = await this.request(
+        `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=8`,
+        this.githubHeaders(),
+      );
+      const payload = (await response.json()) as { items?: GithubRepo[] };
+      const retrievedAt = new Date();
+
+      return (payload.items ?? [])
+        .filter((repo) => repo.description)
+        .map((repo) => ({
+          title: `${repo.name ?? repo.full_name} — ${clean(repo.description ?? '')}`,
+          url: repo.html_url,
+          summary:
+            `NEW free tool: ${clean(repo.description ?? '')}. ` +
+            `${repo.stargazers_count} stars in under 90 days, written in ${repo.language ?? 'unknown'}. ` +
+            `License: ${repo.license?.spdx_id ?? 'unspecified'}. Install from ${repo.html_url}`,
+          origin: `github-new:${topic}`,
+          kind: 'new-tool' as const,
+          weight: 100 + Math.round((repo.stargazers_count ?? 0) / 50),
+          publishedAt: repo.created_at ? new Date(repo.created_at) : undefined,
+          retrievedAt,
+        }));
+    });
+
+    const settled = await Promise.allSettled(requests);
+    return settled.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
+  }
+
+  /**
+   * Show HN: developers launching their own tools, with the community's
+   * reaction attached. A high-scoring Show HN is a tool people found genuinely
+   * useful on the day it appeared.
+   */
+  private async fetchShowHN(): Promise<SourceItem[]> {
+    const response = await this.request(
+      'https://hn.algolia.com/api/v1/search_by_date?tags=show_hn&numericFilters=points>60&hitsPerPage=30',
+    );
+    const payload = (await response.json()) as { hits: HackerNewsHit[] };
+    const retrievedAt = new Date();
+
+    return payload.hits
+      .filter((hit) => hit.url && hit.title)
+      .map((hit) => ({
+        title: clean(hit.title).replace(/^show hn:\s*/i, ''),
+        url: hit.url as string,
+        summary: `A tool its author launched publicly. ${hit.points} points and ${hit.num_comments ?? 0} comments on Hacker News, so people engaged with it.`,
+        origin: `show-hn:${safeHost(hit.url as string)}`,
+        kind: 'tool-launch' as const,
+        weight: 80 + (hit.points ?? 0),
         publishedAt: hit.created_at ? new Date(hit.created_at) : undefined,
         retrievedAt,
       }));
@@ -287,8 +369,13 @@ function dedupe(items: SourceItem[]): SourceItem[] {
   return result;
 }
 
-/** Richer signal kinds first, then popularity, then recency. */
+/**
+ * Installable tools rank above commentary: the topic shape we want is "here is
+ * a free tool, here is it running on a real project, here is the result".
+ */
 const KIND_PRIORITY: Record<SignalKind, number> = {
+  'new-tool': 7,
+  'tool-launch': 6,
   'engineering-article': 5,
   tutorial: 4,
   'trending-project': 3,
@@ -382,12 +469,15 @@ interface DevToArticle {
 }
 
 interface GithubRepo {
+  name?: string;
   full_name: string;
   html_url: string;
   description?: string | null;
   stargazers_count?: number;
   language?: string | null;
   pushed_at?: string;
+  created_at?: string;
+  license?: { spdx_id?: string } | null;
 }
 
 interface GithubRelease {

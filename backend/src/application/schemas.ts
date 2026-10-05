@@ -45,6 +45,15 @@ export const rankedTopicZ = z.object({
   category: z.string().max(80).default('general'),
   /** The concrete thing the student has working at the end. */
   whatYouWillBuild: z.string().max(1000).default(''),
+  /** The specific tool the topic is built around, '' if it is not tool-centric. */
+  toolName: z.string().max(120).default(''),
+  toolUrl: z.string().max(500).default(''),
+  /** Whether that tool is free / open source — a paywalled tool is a weak topic. */
+  isFreeOrOpenSource: z.boolean().default(false),
+  /** The surprising, quantified payoff: "70% fewer tokens, answers 27x faster". */
+  measurableOutcome: z.string().max(500).default(''),
+  /** Who or what makes this credible: a known person, company, or established idea. */
+  credibilityAnchor: z.string().max(500).default(''),
   /** Who gets value from it, in plain words. */
   whoBenefits: z.string().max(500).default(''),
   /** Why it is worth learning now, grounded in the signals. */
@@ -80,6 +89,21 @@ const rankedTopicJson = obj(
     whatYouWillBuild: str(
       'The concrete artefact the student has working at the end, in one or two sentences. Must be something they can run on their own machine.',
     ),
+    toolName: str(
+      'The specific tool this topic is built around, exactly as its authors name it. Empty string only if the topic genuinely is not about a tool.',
+    ),
+    toolUrl: str('Where to get that tool (repository or official page). Empty string if none.'),
+    isFreeOrOpenSource: {
+      type: 'boolean',
+      description:
+        'True only if someone can install and use the tool without paying. Guess conservatively.',
+    },
+    measurableOutcome: str(
+      'The quantified payoff, with the number: "cuts token usage by about 70%", "answers 27x faster", "drops cold starts from 4s to 300ms". Empty string if the signals do not support a number — never invent one.',
+    ),
+    credibilityAnchor: str(
+      'Why a viewer should believe this matters: a known engineer who advocated the idea, a company using it in production, or an established technique it implements. Empty string if there is none.',
+    ),
     whoBenefits: str('Who gets value from this and how, in plain words'),
     whyNow: str('Why this is worth learning now, grounded in the signals provided'),
     prerequisites: strArray('What the student must already know before starting'),
@@ -111,6 +135,11 @@ const rankedTopicJson = obj(
     'description',
     'category',
     'whatYouWillBuild',
+    'toolName',
+    'toolUrl',
+    'isFreeOrOpenSource',
+    'measurableOutcome',
+    'credibilityAnchor',
     'whoBenefits',
     'whyNow',
     'prerequisites',

@@ -277,6 +277,55 @@ a { color: var(--accent); }
 .vc-topic__score-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .vc-topic__score { font-size: 24px; font-weight: 700; color: var(--accent); }
 .vc-topic__description { margin: 12px 0 0; color: var(--text); }
+.vc-topic__outcome {
+  margin: 12px 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--warning);
+}
+
+.vc-topic__outcome-icon { font-size: 14px; }
+
+.vc-topic__tool {
+  margin: 10px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.vc-topic__tool-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.vc-topic__free {
+  font-size: 11px;
+  color: var(--success);
+  border: 1px solid rgba(53, 195, 137, 0.4);
+  background: rgba(53, 195, 137, 0.1);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.vc-topic__paid {
+  font-size: 11px;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
 .vc-topic__build {
   margin: 12px 0 0;
   padding: 10px 12px;

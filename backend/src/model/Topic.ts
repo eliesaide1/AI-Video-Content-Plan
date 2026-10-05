@@ -22,6 +22,13 @@ const topicSchema = new Schema(
     /** The concrete thing a student has working when the course ends. A topic
      *  without this is a lecture subject, not a course. */
     whatYouWillBuild: { type: String, default: '', trim: true, maxlength: 1000 },
+    /** The tool the topic is built around — the thing a viewer installs. */
+    toolName: { type: String, default: '', trim: true, maxlength: 120 },
+    toolUrl: { type: String, default: '', trim: true, maxlength: 500 },
+    isFreeOrOpenSource: { type: Boolean, default: false },
+    /** The quantified payoff that makes the hook, e.g. "70% fewer tokens". */
+    measurableOutcome: { type: String, default: '', trim: true, maxlength: 500 },
+    credibilityAnchor: { type: String, default: '', trim: true, maxlength: 500 },
     whoBenefits: { type: String, default: '', trim: true, maxlength: 500 },
     whyNow: { type: String, default: '', trim: true, maxlength: 1000 },
     prerequisites: { type: [String], default: [] },
@@ -68,6 +75,9 @@ topicSchema.index(
 
 // Audience-filtered browsing.
 topicSchema.index({ audience: 1, status: 1 }, { name: 'topic_audience_status' });
+
+// Surfacing the tool-centric candidates, which are the ones worth filming.
+topicSchema.index({ toolName: 1 }, { name: 'topic_tool', sparse: true });
 
 // Grouping the output of one discovery run.
 topicSchema.index({ discoveryRunId: 1 }, { name: 'topic_discoveryRun', sparse: true });

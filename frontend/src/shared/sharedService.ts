@@ -65,6 +65,13 @@ export interface Topic {
   description: string;
   /** The concrete thing the student has working at the end of the course. */
   whatYouWillBuild: string;
+  /** The tool the topic is built around — what the viewer installs. */
+  toolName: string;
+  toolUrl: string;
+  isFreeOrOpenSource: boolean;
+  /** The quantified payoff that makes the hook, e.g. "70% fewer tokens". */
+  measurableOutcome: string;
+  credibilityAnchor: string;
   whoBenefits: string;
   whyNow: string;
   prerequisites: string[];

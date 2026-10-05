@@ -36,6 +36,9 @@ export class ResearchService {
           title: topic.title,
           description: topic.description,
           whatYouWillBuild: topic.whatYouWillBuild,
+          toolName: topic.toolName,
+          toolUrl: topic.toolUrl,
+          measurableOutcome: topic.measurableOutcome,
           context: { audience: topic.audience, depth: topic.desiredDepth },
           sources: topic.sources.map((source) => ({
             title: source.title,
