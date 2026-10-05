@@ -26,6 +26,13 @@ export interface SourceItem {
 
 export type SignalKind =
   /**
+   * A tool the audience already knows (Claude, Google Stitch, Cursor...) with
+   * something recent happening around it. The strongest signal of all: the
+   * demand already exists, so a "use X to do Y" video meets people who are
+   * already looking for it.
+   */
+  | 'known-tool'
+  /**
    * A newly released free/open-source tool someone can install today.
    * The strongest signal we have: "here is a free tool, I ran it on a real
    * project, here is the result" is the format that actually gets watched.
@@ -58,6 +65,7 @@ const ISSUE_REF = /#\d+/g;
 export class SourceFetcher {
   async fetchAll(): Promise<SourceItem[]> {
     const tasks: Promise<SourceItem[]>[] = [
+      ...config.discovery.toolWatchlist.map((tool) => this.fetchToolMentions(tool)),
       this.fetchNewTools(),
       this.fetchShowHN(),
       this.fetchHackerNews(),
@@ -114,6 +122,83 @@ export class SourceFetcher {
         publishedAt: hit.created_at ? new Date(hit.created_at) : undefined,
         retrievedAt,
       }));
+  }
+
+  /**
+   * What is happening right now around a tool the audience already knows.
+   *
+   * Searched by name rather than discovered, because the point is not novelty
+   * — it is that people are already typing "how do I use Claude for..." into
+   * a search box. The signal tells us which capability of that tool is live
+   * in the conversation this week.
+   */
+  private async fetchToolMentions(tool: string): Promise<SourceItem[]> {
+    // Two angles per tool: Hacker News carries the news, dev.to carries the
+    // "how I used X to do Y" write-ups. Tools like n8n and v0 barely appear on
+    // HN but have plenty of dev.to tutorials, and those are closer to the
+    // format we want anyway.
+    const [news, howTos] = await Promise.allSettled([
+      this.fetchToolNews(tool),
+      this.fetchToolHowTos(tool),
+    ]);
+
+    return [
+      ...(news.status === 'fulfilled' ? news.value : []),
+      ...(howTos.status === 'fulfilled' ? howTos.value : []),
+    ];
+  }
+
+  private async fetchToolNews(tool: string): Promise<SourceItem[]> {
+    const sinceUnix = Math.floor((Date.now() - 1000 * 60 * 60 * 24 * 45) / 1000);
+    const response = await this.request(
+      `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(tool)}` +
+        `&tags=story&numericFilters=created_at_i>${sinceUnix},points>${config.discovery.knownToolMinPoints}` +
+        `&hitsPerPage=6`,
+    );
+    const payload = (await response.json()) as { hits: HackerNewsHit[] };
+    const retrievedAt = new Date();
+
+    return payload.hits
+      .filter((hit) => hit.title)
+      // Algolia matches loosely; keep only stories that really name the tool.
+      .filter((hit) => hit.title.toLowerCase().includes(tool.toLowerCase().split(' ')[0]))
+      .map((hit) => ({
+        title: `${tool}: ${clean(hit.title)}`,
+        url: hit.url ?? `https://news.ycombinator.com/item?id=${hit.objectID ?? ''}`,
+        summary:
+          `A tool the audience already knows. Recent discussion: "${clean(hit.title)}" ` +
+          `(${hit.points} points, ${hit.num_comments ?? 0} comments). ` +
+          `People are actively looking for ways to use ${tool}.`,
+        origin: `tool-watch:${tool}`,
+        kind: 'known-tool' as const,
+        weight: 200 + (hit.points ?? 0),
+        publishedAt: hit.created_at ? new Date(hit.created_at) : undefined,
+        retrievedAt,
+      }));
+  }
+
+  /** Community write-ups about a watched tool: "how I used X to do Y". */
+  private async fetchToolHowTos(tool: string): Promise<SourceItem[]> {
+    // dev.to tags are lowercase and unspaced: "Google Stitch" -> "googlestitch".
+    const tag = tool.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const response = await this.request(
+      `https://dev.to/api/articles?tag=${encodeURIComponent(tag)}&top=30&per_page=5`,
+    );
+    const articles = (await response.json()) as DevToArticle[];
+    const retrievedAt = new Date();
+
+    return articles.map((article) => ({
+      title: `${tool}: ${clean(article.title)}`,
+      url: article.url,
+      summary:
+        `A practitioner write-up about ${tool}. ${clean(article.description ?? '')} ` +
+        `(${article.positive_reactions_count ?? 0} reactions — people want this.)`,
+      origin: `tool-howto:${tool}`,
+      kind: 'known-tool' as const,
+      weight: 180 + (article.positive_reactions_count ?? 0),
+      publishedAt: article.published_at ? new Date(article.published_at) : undefined,
+      retrievedAt,
+    }));
   }
 
   /**
@@ -374,6 +459,7 @@ function dedupe(items: SourceItem[]): SourceItem[] {
  * a free tool, here is it running on a real project, here is the result".
  */
 const KIND_PRIORITY: Record<SignalKind, number> = {
+  'known-tool': 8,
   'new-tool': 7,
   'tool-launch': 6,
   'engineering-article': 5,
@@ -455,6 +541,7 @@ function normaliseUrl(url: string): string {
 interface HackerNewsHit {
   title: string;
   url: string | null;
+  objectID?: string;
   points?: number;
   num_comments?: number;
   created_at?: string;

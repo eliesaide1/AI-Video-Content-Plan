@@ -57,6 +57,28 @@ export const config = {
     ]),
     /** Repos we follow for MAJOR releases only (patch/canary noise is dropped). */
     githubRepos: list('DISCOVERY_GITHUB_REPOS', []),
+    /**
+     * The AI tools the audience already knows and searches for.
+     *
+     * Discovery watches these by name. A topic about a tool people have heard
+     * of has demand waiting for it; a topic about an unknown repo has to
+     * create that demand from scratch.
+     */
+    toolWatchlist: list('DISCOVERY_TOOL_WATCHLIST', [
+      'Claude',
+      'Google Stitch',
+      'Cursor',
+      'Gemini',
+      'ChatGPT',
+      'n8n',
+      'Lovable',
+      'v0',
+      'Perplexity',
+      'NotebookLM',
+      'ElevenLabs',
+      'Midjourney',
+    ]),
+
     /** Subjects used to query trending repos and community tutorials. */
     trendingTopics: list('DISCOVERY_TRENDING_TOPICS', [
       'ai-agents',
@@ -65,6 +87,8 @@ export const config = {
       'react',
       'devops',
     ]),
+    /** Point floor for watchlist mentions — lower, because the tool is the signal. */
+    knownToolMinPoints: num('DISCOVERY_KNOWN_TOOL_MIN_POINTS', 30),
     /** Minimum Hacker News points for a story to count as a signal. */
     hackerNewsMinPoints: num('DISCOVERY_HN_MIN_POINTS', 150),
     /**

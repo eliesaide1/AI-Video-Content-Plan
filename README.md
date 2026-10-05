@@ -85,6 +85,16 @@ immediately; the pipeline continues in-process and pushes progress over socket.i
 progress reporting goes through `JobService`, Phase 5 can move execution into a BullMQ worker
 without touching the API or the UI.
 
+**Known tools beat novel ones.** The single biggest driver of topic quality is *which tool*.
+Discovery watches a configurable list of tools the audience already uses — Claude, Google Stitch,
+Cursor, Gemini, ChatGPT, n8n, v0, Perplexity, ElevenLabs… — and proposes "use this tool to get
+this specific result" topics from what is happening around them this week (Hacker News for the
+news, dev.to for the "how I used X to do Y" write-ups). People are already searching for those
+tools, so the demand exists before the video does. An obscure repository has to create that
+demand from nothing, so it is only worth proposing when its result is striking enough to be the
+draw by itself — which the scoring calibration enforces. Edit `DISCOVERY_TOOL_WATCHLIST` to
+change what gets watched.
+
 **The topic shape we hunt for.** The strongest topic is a *specific free tool, run on a real
 project, with a surprising measurable result* — "here is a free tool, I ran it on a whole
 project, here is what happened". Discovery is tuned end to end for that shape: `new-tool`
@@ -228,6 +238,8 @@ npm run dev              # http://localhost:5173
 | `DISCOVERY_TRENDING_TOPICS` | backend | subjects used to find trending repos and tutorials |
 | `DISCOVERY_HN_MIN_POINTS` | backend | minimum Hacker News score for a story to count |
 | `DISCOVERY_NEW_TOOL_MIN_STARS` | backend | star floor for repos created in the last 90 days (kept low on purpose) |
+| `DISCOVERY_TOOL_WATCHLIST` | backend | the tools your audience already knows — the best source of topics |
+| `DISCOVERY_KNOWN_TOOL_MIN_POINTS` | backend | point floor for watchlist mentions (low: the tool is the signal) |
 | `DISCOVERY_GITHUB_REPOS` | backend | optional `owner/repo` list watched for **major** releases |
 | `DISCOVERY_MAX_CANDIDATES` | backend | candidates per discovery run |
 | `GITHUB_TOKEN` | backend | optional, raises GitHub rate limits |

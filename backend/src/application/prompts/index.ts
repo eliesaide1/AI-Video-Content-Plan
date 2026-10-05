@@ -42,8 +42,28 @@ Four parts make that work, and you should aim for all four:
   3. A CREDIBILITY ANCHOR: a known engineer, a company running it, or an established idea.
   4. A MEASURABLE RESULT with an actual number. The number is the hook.
 
-A topic with all four is the best thing you can propose. Prefer a tool nobody has covered yet
-over a famous one everybody already knows.
+A topic with all four is the best thing you can propose.
+
+WHICH TOOL TO PICK — THIS MATTERS MORE THAN ANYTHING ELSE
+Prefer a tool the audience ALREADY KNOWS AND WANTS TO USE: Claude, Google Stitch, Cursor,
+Gemini, ChatGPT, n8n, Lovable, v0, Perplexity, NotebookLM, ElevenLabs, Midjourney and the like.
+Those arrive in the "known-tool" signals, and they are the best topics you can propose.
+
+Why: people are already typing "how do I use Claude for ..." into a search box. A video about a
+tool they recognise meets demand that already exists. A video about an unknown repository with
+200 stars has to create that demand from nothing, and it will not.
+
+So:
+  STRONGEST  "Use Google Stitch to turn a rough sketch into a working app UI"
+  STRONGEST  "Use Claude to review your whole codebase and write the missing tests"
+  STRONGEST  "Build a sales-lead pipeline in n8n that an AI agent actually runs"
+  WEAK       "Edit a podcast with Audionaut, a free multitrack editor nobody has heard of"
+  WEAK       "Run kimi-k3-in-c on your CPU"
+
+An obscure tool is worth proposing ONLY when its result is so striking that the number itself
+is the draw. Otherwise reach for the tool people already use.
+
+The question to ask of every topic: would someone type this into a search box this week?
 
 PACKAGE EVERY TOPIC AS A VIDEO
 A topic is not finished until you can see it on a thumbnail. For each one also write the
@@ -158,9 +178,11 @@ ${covered}
 Propose up to ${input.maxCandidates} course topics, best first.
 
 HOW TO FORM A TOPIC
-- Look hardest at the "new-tool" and "tool-launch" signals. Those are free tools that did not
-  exist a few months ago, and "here is a new free tool, watch it work on a real project" is the
-  format we want most.
+- Look hardest at the "known-tool" signals. Each one names a tool the audience already uses
+  and shows what is happening around it right now. Turn that into "use this tool to get this
+  specific, valuable result" — that is the format we want most.
+- Then look at "new-tool" and "tool-launch" for the rarer case where an unknown tool produces
+  a result striking enough to carry a video on its own.
 - For a tool-centric topic, fill in toolName, toolUrl and isFreeOrOpenSource, and say in
   whatYouWillBuild what real project the viewer applies it to.
 - measurableOutcome is the hook. Take the number from the signals — a README's own benchmark,
@@ -191,15 +213,18 @@ SCORE 0-100, weighing in this order:
 1. Can a viewer follow it step by step on their own machine and finish with a working result?
 2. Is that result genuinely useful to them afterwards?
 3. Does it demonstrate well on video (something visibly happens, with a number at the end)?
-4. Is it built around a specific free tool they can install today?
-5. Recency: is this tool or technique new enough that few people have covered it?
+4. Is it built around a tool the audience already knows and wants to use? This is worth more
+   than novelty. A famous tool applied to a fresh, specific task beats an unknown tool every time.
+5. Is the task itself specific and valuable, rather than a generic "getting started" tour?
 6. Reliability of the sources.
 7. Dissimilarity from the already-covered list.
 
 Calibration:
-- All four parts of the winning shape (free tool + real project + credibility + a real number): 85-95.
-- A free tool applied to a real project, but no hard number: 70-84.
+- A tool the audience knows, applied to a specific valuable task, with a real number: 88-96.
+- A tool the audience knows, applied to a specific valuable task, no hard number: 75-87.
+- An unknown tool whose result is striking enough to be the draw by itself: 70-85.
 - A genuinely useful build with no specific tool behind it: 55-69.
+- An unknown tool with an ordinary result: below 50 — nobody is searching for it.
 - Cannot be followed step by step to a working result: below 40, no matter how interesting.
 
 Every topic must cite in sourceUrls the signal URLs that justify it.`;
