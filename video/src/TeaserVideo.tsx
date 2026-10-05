@@ -1,5 +1,6 @@
 import { AbsoluteFill, Sequence, useVideoConfig } from 'remotion';
 import { OutroScene } from './scenes/OutroScene';
+import { TitleCardScene } from './scenes/TitleCardScene';
 import { PipelineScene } from './scenes/PipelineScene';
 import { StatementScene } from './scenes/StatementScene';
 import { ProgressBar } from './scenes/_shared';
@@ -14,13 +15,24 @@ import type { TeaserBeat, TeaserVideoProps } from './types';
  * component renders a beat is decided HERE, never by the AI — that is what
  * keeps every video in the channel looking like the same channel.
  */
-export function TeaserVideo({ teaser, courseTitle }: TeaserVideoProps) {
+/** Seconds the opening title card holds before the first beat. */
+export const TITLE_CARD_SECONDS = 3;
+
+export function TeaserVideo({ teaser, courseTitle, packaging }: TeaserVideoProps) {
   const { fps } = useVideoConfig();
+  // The card is prepended, so every beat shifts later by its length.
+  const offset = packaging ? Math.round(TITLE_CARD_SECONDS * fps) : 0;
 
   return (
     <AbsoluteFill style={{ backgroundColor: theme.colors.bg }}>
+      {packaging ? (
+        <Sequence from={0} durationInFrames={offset}>
+          <TitleCardScene packaging={packaging} />
+        </Sequence>
+      ) : null}
+
       {teaser.beats.map((beat, index) => {
-        const from = Math.round(beat.startSecond * fps);
+        const from = offset + Math.round(beat.startSecond * fps);
         const durationInFrames = Math.max(
           1,
           Math.round((beat.endSecond - beat.startSecond) * fps),

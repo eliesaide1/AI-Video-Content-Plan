@@ -9,10 +9,19 @@ looking like the same channel.
 ```bash
 cd video
 npm install
+
+# fetch the topic so the video can open on its real title card
+curl -s localhost:4500/api/topics/<topic-id> | python3 -c 'import sys,json;json.dump(json.load(sys.stdin)["data"],open("/tmp/topic.json","w"))'
+
 npx tsx render.ts ../backend/generated/courses/<course-id>/marketing/teaser.json \
   --title "Course title" \
+  --packaging /tmp/topic.json \
   --out out/teaser.mp4
 ```
+
+`--packaging` is optional. With it the video opens on a 3-second title card built from the
+topic's own `videoTitleArabic`, `thumbnailText` and `hookLine` — the same card the viewer would
+have clicked. Without it the video starts straight at the first beat.
 
 First run downloads Chrome Headless Shell (~94 MB). A 28s vertical teaser renders in ~50s.
 
@@ -31,6 +40,7 @@ npm run studio
 | `hook`, `problem`, `outcome` | `StatementScene` — one short line, narration beneath |
 | any beat whose on-screen text reads `a → b → c` | `PipelineScene` — numbered steps, staggered in |
 | `call-to-action` | `OutroScene` — course title and CTA card |
+| (prepended, when `--packaging` is given) | `TitleCardScene` — thumbnail chips, Arabic + English title, spoken hook |
 
 Beat timings (`startSecond` / `endSecond`) come straight from `teaser.json`, so the video is
 exactly as long as the script says.

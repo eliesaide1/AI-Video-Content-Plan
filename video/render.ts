@@ -3,7 +3,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import type { TeaserData } from './src/types';
+import type { Packaging, TeaserData } from './src/types';
 
 /**
  * Renders one teaser.json to an MP4.
@@ -29,6 +29,21 @@ async function main() {
 
   const teaser = JSON.parse(fs.readFileSync(path.resolve(teaserPath), 'utf8')) as TeaserData;
   const courseTitle = flag('title', 'AI Content & Course Factory');
+
+  // Optional: the topic's video packaging, so the video opens on the same card
+  // the viewer would have clicked. Pass the topic JSON from /api/topics/:id.
+  const packagingPath = flag('packaging', '');
+  let packaging: Packaging | undefined;
+  if (packagingPath) {
+    const topic = JSON.parse(fs.readFileSync(path.resolve(packagingPath), 'utf8')) as Record<string, string>;
+    packaging = {
+      titleArabic: topic.videoTitleArabic ?? '',
+      titleEnglish: topic.videoTitleEnglish ?? '',
+      thumbnailText: topic.thumbnailText ?? '',
+      hookLine: topic.hookLine ?? '',
+    };
+    console.log(`packaging: "${packaging.titleEnglish}"`);
+  }
   const outPath = path.resolve(flag('out', path.join('out', 'teaser.mp4')));
 
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
@@ -47,7 +62,7 @@ async function main() {
     },
   });
 
-  const inputProps = { teaser, courseTitle };
+  const inputProps = { teaser, courseTitle, ...(packaging ? { packaging } : {}) };
 
   console.log('selecting composition...');
   const composition = await selectComposition({ serveUrl, id: 'Teaser', inputProps });

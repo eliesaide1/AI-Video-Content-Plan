@@ -1,5 +1,5 @@
 import { Composition } from 'remotion';
-import { TeaserVideo } from './TeaserVideo';
+import { TITLE_CARD_SECONDS, TeaserVideo } from './TeaserVideo';
 import { theme } from './theme';
 import type { TeaserData, TeaserVideoProps } from './types';
 
@@ -32,7 +32,9 @@ export function RemotionRoot() {
       defaultProps={{ teaser: placeholder, courseTitle: 'Course title' } satisfies TeaserVideoProps}
       // The teaser's own duration decides the video length.
       calculateMetadata={({ props }) => ({
-        durationInFrames: Math.round(props.teaser.durationSeconds * theme.fps),
+        durationInFrames: Math.round(
+          (props.teaser.durationSeconds + (props.packaging ? TITLE_CARD_SECONDS : 0)) * theme.fps,
+        ),
       })}
     />
   );
