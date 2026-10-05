@@ -6,38 +6,106 @@ import { theme } from '../theme';
 export function useEntrance(delayFrames = 0) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  // Lower damping so elements arrive with a little overshoot instead of
+  // easing politely into place — the difference between motion and a fade.
   const progress = spring({
     frame: frame - delayFrames,
     fps,
-    config: { damping: 200, mass: 0.6 },
+    config: { damping: 14, mass: 0.5, stiffness: 110 },
   });
   return {
-    opacity: interpolate(progress, [0, 1], [0, 1]),
-    translateY: interpolate(progress, [0, 1], [40, 0]),
+    opacity: interpolate(progress, [0, 0.6], [0, 1], {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+    }),
+    translateY: interpolate(progress, [0, 1], [52, 0]),
+    /** Slight scale-up on arrival, for things that should feel like they land. */
+    scale: interpolate(progress, [0, 1], [0.94, 1]),
   };
 }
 
-export function SceneFrame({ accent, children }: { accent: string; children: ReactNode }) {
+/** Counts a number up as the scene opens, so a figure arrives rather than appears. */
+export function useCountUp(target: string, delayFrames = 0): string {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const digits = /^[^\d]*(\d[\d,.]*)(.*)$/.exec(target);
+  if (!digits) return target;
+
+  const [, numberPart, suffix] = digits;
+  const prefix = target.slice(0, target.indexOf(numberPart));
+  const value = Number(numberPart.replace(/,/g, ''));
+  if (!Number.isFinite(value)) return target;
+
+  const progress = spring({ frame: frame - delayFrames, fps, config: { damping: 200 } });
+  const current = Math.round(value * progress);
+  return `${prefix}${current.toLocaleString()}${suffix}`;
+}
+
+/**
+ * Slow continuous drift across the whole scene.
+ *
+ * Without it every scene is a static card that happens to fade in, and the
+ * result reads as a slide deck. A gentle push-in keeps the frame alive for the
+ * seconds the viewer spends on it, the way a camera never sits perfectly
+ * still.
+ */
+function useDrift() {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const progress = durationInFrames > 0 ? frame / durationInFrames : 0;
+  return {
+    scale: interpolate(progress, [0, 1], [1, 1.045]),
+    translateY: interpolate(progress, [0, 1], [10, -10]),
+  };
+}
+
+/** Two accent blooms sliding slowly behind the content. */
+function LivingBackground({ accent }: { accent: string }) {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const t = frame / fps;
+
   return (
-    <AbsoluteFill
-      style={{
-        backgroundColor: theme.colors.bg,
-        fontFamily: theme.font.family,
-        color: theme.colors.text,
-        padding: 110,
-        // The caption is absolutely positioned at the bottom, so content has
-        // to stop above it or a dense scene collides with the narration.
-        paddingBottom: 380,
-        justifyContent: 'center',
-      }}
-    >
-      {/* A soft wash of the beat's accent, so the colour reads without a hard block. */}
+    <AbsoluteFill>
       <AbsoluteFill
         style={{
-          background: `radial-gradient(circle at 50% 28%, ${accent}26, transparent 62%)`,
+          background: `radial-gradient(circle at ${48 + Math.sin(t * 0.45) * 14}% ${
+            26 + Math.cos(t * 0.35) * 9
+          }%, ${accent}30, transparent 58%)`,
         }}
       />
-      {children}
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(circle at ${62 + Math.cos(t * 0.3) * 16}% ${
+            74 + Math.sin(t * 0.25) * 10
+          }%, ${accent}1c, transparent 55%)`,
+        }}
+      />
+    </AbsoluteFill>
+  );
+}
+
+export function SceneFrame({ accent, children }: { accent: string; children: ReactNode }) {
+  const drift = useDrift();
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: theme.colors.bg, overflow: 'hidden' }}>
+      <LivingBackground accent={accent} />
+
+      <AbsoluteFill
+        style={{
+          fontFamily: theme.font.family,
+          color: theme.colors.text,
+          padding: 110,
+          // The caption is absolutely positioned at the bottom, so content has
+          // to stop above it or a dense scene collides with the narration.
+          paddingBottom: 380,
+          justifyContent: 'center',
+          transform: `scale(${drift.scale}) translateY(${drift.translateY}px)`,
+        }}
+      >
+        {children}
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 }

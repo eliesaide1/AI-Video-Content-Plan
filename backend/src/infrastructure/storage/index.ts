@@ -21,6 +21,9 @@ export const contentPaths = {
   /** The recording plan: what to test, how to judge it, what to say. */
   productionKit: (courseId: string) => `courses/${courseId}/production/KIT.md`,
   productionKitJson: (courseId: string) => `courses/${courseId}/production/kit.json`,
+  /** Narration for one of the cards cut into a screen recording. */
+  segmentAudio: (courseId: string, segment: string) =>
+    `courses/${courseId}/audio/segment-${segment}.mp3`,
   /** Narration audio for one demo scene (1-based). */
   sceneAudio: (courseId: string, sceneNumber: number) =>
     `courses/${courseId}/audio/scene-${String(sceneNumber).padStart(2, '0')}.mp3`,

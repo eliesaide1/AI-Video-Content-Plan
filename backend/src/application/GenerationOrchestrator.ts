@@ -303,6 +303,13 @@ export class GenerationOrchestrator {
       await jobService.markRunning(job, JobStage.GeneratingAudio, 20);
       await jobService.addLog(job, 'Narrating each scene...');
       const result = await voiceoverService.generateForDemo(courseId);
+      // The cards that get cut into the recording need narration too.
+      const kitClips = await voiceoverService
+        .generateForKit(courseId)
+        .catch(() => ({ clips: [] as { segment: string }[] }));
+      if (kitClips.clips.length) {
+        await jobService.addLog(job, `narrated ${kitClips.clips.length} kit segment(s) in Arabic`);
+      }
       await jobService.addLog(
         job,
         `${result.clips} clip(s) with ${result.provider} (${result.voice}); video is now ${Math.round(result.totalSeconds)}s`,

@@ -26,4 +26,8 @@ export type SegmentName = 'intro' | 'scoreboard' | 'outro';
 export interface SegmentProps extends Record<string, unknown> {
   kit: ProductionKit;
   segment: SegmentName;
+  /** Narration for this segment, relative to public/. */
+  audioSrc?: string;
+  /** Length of that narration, so the card lasts as long as the line. */
+  audioSeconds?: number;
 }

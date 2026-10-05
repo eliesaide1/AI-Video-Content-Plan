@@ -83,6 +83,54 @@ export class VoiceoverService {
       voice,
     };
   }
+
+  /**
+   * Narrates the three cards that get cut into a screen recording.
+   *
+   * Arabic, because that is what the presenter speaks — the macOS voice is
+   * picked per language, since reading Arabic with an English voice produces
+   * nothing usable.
+   */
+  async generateForKit(courseId: string): Promise<{ clips: { segment: string; path: string; seconds: number }[] }> {
+    const kitPath = contentPaths.productionKitJson(courseId);
+    if (!(await storageService.exists(kitPath))) {
+      throw AppError.badRequest('Generate the production kit before narrating it.');
+    }
+
+    const kit = JSON.parse(await storageService.read(kitPath)) as {
+      hookArabic: string;
+      verdictQuestion: string;
+      tasks: { ask: string }[];
+      closingArabic: string;
+    };
+
+    const lines: { segment: string; text: string }[] = [
+      { segment: 'intro', text: kit.hookArabic },
+      {
+        segment: 'scoreboard',
+        // Reading the test list aloud is what makes the scoreboard a moment
+        // rather than a wall of text.
+        text: kit.tasks.map((task, index) => `${index + 1}. ${task.ask}`).join('. '),
+      },
+      { segment: 'outro', text: kit.verdictQuestion },
+    ];
+
+    const clips: { segment: string; path: string; seconds: number }[] = [];
+
+    for (const line of lines) {
+      if (!line.text?.trim()) continue;
+      const relativePath = contentPaths.segmentAudio(courseId, line.segment);
+      const absolutePath = path.join(config.storage.generatedRoot, relativePath);
+      const audio = await voiceService.generateSpeech(line.text, {
+        outputPath: absolutePath,
+        voice: config.voice.apiKey ? undefined : config.voice.localVoiceArabic,
+      });
+      clips.push({ segment: line.segment, path: relativePath, seconds: audio.durationSeconds });
+    }
+
+    log.info(`kit narration for ${courseId}: ${clips.map((c) => `${c.segment} ${c.seconds.toFixed(1)}s`).join(', ')}`);
+    return { clips };
+  }
 }
 
 export const voiceoverService = new VoiceoverService();

@@ -97,13 +97,15 @@ export function RemotionRoot() {
             segment: 'intro',
           } satisfies SegmentProps
         }
-        calculateMetadata={({ props }) => ({
-          // The scoreboard needs longer: each row lands in turn.
-          durationInFrames:
-            props.segment === 'scoreboard'
-              ? Math.round((4 + props.kit.tasks.length * 0.9) * theme.fps)
-              : 5 * theme.fps,
-        })}
+        calculateMetadata={({ props }) => {
+          // A narrated card lasts as long as its line, plus a short tail.
+          // Without narration it falls back to a readable default, with the
+          // scoreboard getting longer because each row lands in turn.
+          const spoken = props.audioSeconds ? props.audioSeconds + 0.8 : 0;
+          const silent =
+            props.segment === 'scoreboard' ? 4 + props.kit.tasks.length * 0.9 : 5;
+          return { durationInFrames: Math.round(Math.max(spoken, silent) * theme.fps) };
+        }}
       />
     </>
   );

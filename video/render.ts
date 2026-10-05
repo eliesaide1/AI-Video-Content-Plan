@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { execFileSync } from 'node:child_process';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 import type { Packaging, TeaserData } from './src/types';
@@ -131,6 +132,29 @@ async function main() {
   console.log(outPath);
 }
 
+/** Copies one segment's narration into public/ and measures it. */
+function copySegmentAudio(
+  audioDir: string,
+  segment: string,
+): { src: string; seconds: number } | null {
+  const source = path.join(audioDir, `segment-${segment}.mp3`);
+  if (!fs.existsSync(source)) return null;
+
+  const publicDir = path.resolve('public', 'audio');
+  fs.mkdirSync(publicDir, { recursive: true });
+  const name = `kit-${segment}.mp3`;
+  fs.copyFileSync(source, path.join(publicDir, name));
+
+  const out = execFileSync('ffprobe', [
+    '-v', 'error',
+    '-show_entries', 'format=duration',
+    '-of', 'default=noprint_wrappers=1:nokey=1',
+    source,
+  ]).toString().trim();
+
+  return { src: `audio/${name}`, seconds: Number.parseFloat(out) || 0 };
+}
+
 /**
  * Renders the intro, scoreboard and outro cards as separate files, so they
  * drop straight onto an editing timeline beside the screen recording.
@@ -138,16 +162,30 @@ async function main() {
 async function renderSegments(kitPath: string, outDir: string) {
   const kit = readJson<ProductionKit>(kitPath);
   const segments: SegmentName[] = ['intro', 'scoreboard', 'outro'];
+  // Narration sits beside the kit, under the course's audio folder.
+  const audioDir = path.resolve(path.dirname(path.resolve(kitPath)), '..', 'audio');
 
   console.log(`kit:      ${kitPath}`);
   console.log(`title:    ${kit.titleArabic}`);
   console.log(`segments: ${segments.join(', ')}\n`);
 
   fs.mkdirSync(path.resolve(outDir), { recursive: true });
+
+  // Copy every clip into public/ BEFORE bundling: the bundler snapshots that
+  // folder, so anything written afterwards is missing at render time.
+  const narrations = new Map(
+    segments.map((segment) => [segment, copySegmentAudio(audioDir, segment)] as const),
+  );
+
   const serveUrl = await bundle({ entryPoint: path.resolve('src/index.ts') });
 
   for (const segment of segments) {
-    const inputProps = { kit, segment };
+    const narration = narrations.get(segment) ?? null;
+    const inputProps = {
+      kit,
+      segment,
+      ...(narration ? { audioSrc: narration.src, audioSeconds: narration.seconds } : {}),
+    };
     const composition = await selectComposition({ serveUrl, id: 'Segment', inputProps });
     const outputLocation = path.resolve(outDir, `segment-${segment}.mp4`);
 
@@ -161,7 +199,9 @@ async function renderSegments(kitPath: string, outDir: string) {
     });
 
     const seconds = (composition.durationInFrames / composition.fps).toFixed(1);
-    console.log(`  ${segment.padEnd(11)} ${seconds}s  ${outputLocation}`);
+    console.log(
+      `  ${segment.padEnd(11)} ${seconds}s  ${narration ? 'narrated' : 'silent  '}  ${outputLocation}`,
+    );
   }
 }
 

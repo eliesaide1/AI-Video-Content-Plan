@@ -52,6 +52,8 @@ export const config = {
     voiceId: str('VOICE_ID', 'JBFqnCBsd6RMkjVDRZzb'),
     model: str('VOICE_MODEL', 'eleven_multilingual_v2'),
     localVoice: str('VOICE_LOCAL_NAME', 'Samantha'),
+    /** macOS Arabic voice, used for Arabic narration. */
+    localVoiceArabic: str('VOICE_LOCAL_NAME_AR', 'Majed'),
     localRate: num('VOICE_LOCAL_RATE', 180),
   },
 
