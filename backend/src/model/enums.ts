@@ -85,6 +85,7 @@ export const JobType = {
   Lessons: 'lessons',
   Teaser: 'teaser',
   Scenes: 'scenes',
+  Voice: 'voice',
   FullPipeline: 'full-pipeline',
 } as const;
 export type JobType = (typeof JobType)[keyof typeof JobType];
@@ -107,6 +108,7 @@ export const JobStage = {
   GeneratingLessons: 'generating-lessons',
   GeneratingTeaser: 'generating-teaser',
   GeneratingScenes: 'generating-scenes',
+  GeneratingAudio: 'generating-audio',
   Completed: 'completed',
 } as const;
 export type JobStage = (typeof JobStage)[keyof typeof JobStage];

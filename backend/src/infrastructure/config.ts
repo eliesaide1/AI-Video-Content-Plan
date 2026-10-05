@@ -45,6 +45,16 @@ export const config = {
     cliTimeoutMs: num('AI_CLI_TIMEOUT_MS', 300_000),
   },
 
+  voice: {
+    /** ElevenLabs key. Empty = use the local macOS voice. */
+    apiKey: str('VOICE_API_KEY'),
+    /** Point this at a cloned voice to narrate in your own. */
+    voiceId: str('VOICE_ID', 'JBFqnCBsd6RMkjVDRZzb'),
+    model: str('VOICE_MODEL', 'eleven_multilingual_v2'),
+    localVoice: str('VOICE_LOCAL_NAME', 'Samantha'),
+    localRate: num('VOICE_LOCAL_RATE', 180),
+  },
+
   storage: {
     generatedRoot: path.resolve(process.cwd(), str('GENERATED_ROOT', './generated')),
   },

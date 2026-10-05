@@ -54,8 +54,15 @@ async function main() {
 
   if (isDemo) {
     const script = readJson<DemoScript>(scenesPath);
+
+    // Remotion serves media from public/, so narration recorded by the backend
+    // is copied in and each scene is pointed at its copy.
+    const narrated = copyAudioIntoPublic(script, path.dirname(path.resolve(scenesPath)));
+
     compositionId = 'Demo';
     inputProps = { script, courseTitle };
+    if (narrated) console.log(`audio:    ${narrated} narrated scene(s)`);
+    else console.log('audio:    none — run POST /api/courses/<id>/voiceover first');
     console.log(`demo:     ${scenesPath}`);
     console.log(
       `scenes:   ${script.scenes.length} — ${script.scenes.map((scene) => scene.type).join(' → ')}`,
@@ -114,6 +121,35 @@ async function main() {
     `\ndone in ${((Date.now() - started) / 1000).toFixed(0)}s — ${(bytes / 1024 / 1024).toFixed(2)} MB`,
   );
   console.log(outPath);
+}
+
+/**
+ * Copies each scene's narration into public/ and rewrites its path to the
+ * public-relative name Remotion's staticFile() expects.
+ */
+function copyAudioIntoPublic(script: DemoScript, scenesDir: string): number {
+  const publicDir = path.resolve('public', 'audio');
+  let copied = 0;
+
+  for (const scene of script.scenes) {
+    const audioPath = (scene as { audioPath?: string }).audioPath;
+    if (!audioPath) continue;
+
+    // audioPath is relative to the generated root; scenes live beside audio.
+    const source = path.resolve(scenesDir, '..', 'audio', path.basename(audioPath));
+    if (!fs.existsSync(source)) {
+      console.warn(`  missing narration: ${source}`);
+      continue;
+    }
+
+    fs.mkdirSync(publicDir, { recursive: true });
+    const name = `${path.basename(path.dirname(path.dirname(audioPath)))}-${path.basename(audioPath)}`;
+    fs.copyFileSync(source, path.join(publicDir, name));
+    scene.audioSrc = `audio/${name}`;
+    copied += 1;
+  }
+
+  return copied;
 }
 
 main().catch((error) => {

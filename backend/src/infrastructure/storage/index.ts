@@ -18,6 +18,9 @@ export const contentPaths = {
   coursePlan: (courseId: string) => `courses/${courseId}/course/COURSE.md`,
   lesson: (courseId: string, sectionOrder: number, lessonOrder: number) =>
     `courses/${courseId}/course/section-${pad(sectionOrder)}/lesson-${pad(lessonOrder)}.md`,
+  /** Narration audio for one demo scene (1-based). */
+  sceneAudio: (courseId: string, sceneNumber: number) =>
+    `courses/${courseId}/audio/scene-${String(sceneNumber).padStart(2, '0')}.mp3`,
   /** Structured scenes for the demo video (spec §9). */
   demoScenes: (courseId: string) => `courses/${courseId}/scenes/demo.json`,
   teaserMarkdown: (courseId: string) => `courses/${courseId}/marketing/teaser.md`,

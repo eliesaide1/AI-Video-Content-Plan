@@ -3,6 +3,11 @@ export interface BaseScene {
   type: string;
   durationSeconds: number;
   narration: string;
+  /**
+   * Narration audio for this scene, relative to the video's public/ folder.
+   * Absent when the scene has not been narrated.
+   */
+  audioSrc?: string;
 }
 export interface TitleScene extends BaseScene {
   type: 'title';

@@ -73,6 +73,16 @@ courseRouter.post(
   }),
 );
 
+// POST /api/courses/:id/voiceover — narrate the demo scenes
+courseRouter.post(
+  '/:id/voiceover',
+  validateRequest({ params: idParams }),
+  asyncHandler(async (req, res) => {
+    const job = await generationOrchestrator.startVoiceover(req.params.id);
+    accepted(res, job);
+  }),
+);
+
 // POST /api/courses/:id/teaser — generate the teaser only
 courseRouter.post(
   '/:id/teaser',

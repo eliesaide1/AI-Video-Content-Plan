@@ -243,6 +243,8 @@ npm run dev              # http://localhost:5173
 | `DISCOVERY_GITHUB_REPOS` | backend | optional `owner/repo` list watched for **major** releases |
 | `DISCOVERY_MAX_CANDIDATES` | backend | candidates per discovery run |
 | `GITHUB_TOKEN` | backend | optional, raises GitHub rate limits |
+| `VOICE_API_KEY` / `VOICE_ID` / `VOICE_MODEL` | backend | ElevenLabs; empty key falls back to the local macOS voice |
+| `VOICE_LOCAL_NAME` / `VOICE_LOCAL_RATE` | backend | the macOS voice and words per minute |
 | `VITE_API_BASE_URL` | frontend | backend base URL (the only frontend config; no keys) |
 
 No provider key is ever exposed to the browser.
@@ -290,7 +292,7 @@ Clients can join one job's room with `job:subscribe`.
 | Phase | Addition | What changes |
 | --- | --- | --- |
 | 2 | Scene generation | markdown → structured scene JSON (`Teaser.scenesPath` already exists) |
-| 3 | Voice | a `VoiceService` implementation behind a new interface |
+| 3 | Voice | **done** — `VoiceService` with a local macOS provider and ElevenLabs behind the same interface |
 | 4 | Remotion rendering | scene JSON + audio → MP4 (`Lesson.videoPath`, `Teaser.videoPath` exist) |
 | 5 | Background processing | Redis + BullMQ worker replaces in-process execution in the orchestrator |
 | 6 | Scheduled discovery | a scheduler calling the existing discovery job |

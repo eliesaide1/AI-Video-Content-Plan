@@ -14,6 +14,7 @@ import { jobService } from './JobService.js';
 import { lessonService } from './LessonService.js';
 import { researchService } from './ResearchService.js';
 import { sceneService } from './SceneService.js';
+import { voiceoverService } from './VoiceoverService.js';
 import { teaserService } from './TeaserService.js';
 import { topicService } from './TopicService.js';
 
@@ -251,6 +252,25 @@ export class GenerationOrchestrator {
         sceneCount: script.scenes.length,
         unverifiedCommands: unverified,
       };
+    });
+
+    return this.describe(job);
+  }
+
+  /** Narration for the demo scenes (spec §11). */
+  async startVoiceover(courseId: string): Promise<StartedJob> {
+    await curriculumService.getCourse(courseId);
+    const job = await jobService.create(JobType.Voice, courseId);
+
+    this.runDetached(job, async () => {
+      await jobService.markRunning(job, JobStage.GeneratingAudio, 20);
+      await jobService.addLog(job, 'Narrating each scene...');
+      const result = await voiceoverService.generateForDemo(courseId);
+      await jobService.addLog(
+        job,
+        `${result.clips} clip(s) with ${result.provider} (${result.voice}); video is now ${Math.round(result.totalSeconds)}s`,
+      );
+      return result;
     });
 
     return this.describe(job);

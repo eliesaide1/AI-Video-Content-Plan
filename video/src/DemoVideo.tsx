@@ -1,4 +1,4 @@
-import { AbsoluteFill, Sequence, useVideoConfig } from 'remotion';
+import { AbsoluteFill, Audio, Sequence, staticFile, useVideoConfig } from 'remotion';
 import {
   DemoCode,
   DemoComparison,
@@ -32,6 +32,9 @@ export function DemoVideo({ script, courseTitle }: DemoVideoProps) {
 
         return (
           <Sequence key={index} from={from} durationInFrames={durationInFrames}>
+            {/* The narration starts with the scene; the scene was already
+                stretched to fit it, so nothing gets clipped. */}
+            {scene.audioSrc ? <Audio src={staticFile(scene.audioSrc)} /> : null}
             {renderScene(scene, courseTitle)}
           </Sequence>
         );

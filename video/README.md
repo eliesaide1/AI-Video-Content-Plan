@@ -76,11 +76,20 @@ Each scene declares its own `durationSeconds`, so the running time is whatever t
 Beat timings (`startSecond` / `endSecond`) come straight from `teaser.json`, so the video is
 exactly as long as the script says.
 
+## Narration
+
+Scenes carry an `audioPath` once `POST /api/courses/<id>/voiceover` has run. The renderer copies
+those files into `public/audio/` and plays each one inside its own `<Sequence>`, so a line starts
+exactly when its scene does. The backend has already stretched each scene to fit its narration,
+so nothing is clipped — the video follows the voice rather than the other way round.
+
+Rendering without narration still works; the video is simply silent.
+
 ## Current limits
 
-- **No audio.** Voice generation is a later phase, so narration is burned in as a caption —
-  otherwise the video would say nothing. Once a `VoiceService` exists the caption becomes an
-  optional subtitle track.
+- **The default voice is synthetic.** V1 narrates with the local macOS voice because it is free
+  and needs no account. Set `VOICE_API_KEY` (and `VOICE_ID`) for ElevenLabs, including a cloned
+  voice. Captions stay burned in, which is what short-form video wants anyway.
 - **Teasers only.** Lesson videos need a scene model richer than beats (code, terminal,
   diagram), which is Phase 2 proper.
 - **Not wired to the API.** Rendering is slow and resource hungry, so it runs as its own entry
