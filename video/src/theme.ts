@@ -16,6 +16,7 @@ export const theme = {
     warning: '#e8b341',
     success: '#35c389',
     danger: '#f05d5e',
+    border: '#2a2f39',
   },
   font: {
     family: '"SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif',

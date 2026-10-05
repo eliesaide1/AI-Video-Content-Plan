@@ -1,5 +1,6 @@
 import type { Audience, CourseDepth, CourseLevel } from '../model/enums.js';
 import { PROMPT_VERSION } from './prompts/index.js';
+import type { ProductionKit } from './kitSchemas.js';
 import type { CoursePlan, LessonContent, ResearchResult, TeaserScript } from './schemas.js';
 
 /**
@@ -323,4 +324,59 @@ export function renderTeaserMarkdown(input: {
     `## Beats\n\n${beats}\n\n` +
     `${section('Call To Action', input.script.callToAction)}`
   );
+}
+
+/**
+ * The recording plan, as a document to work from while filming.
+ *
+ * Deliberately ordered the way a recording session runs: check the setup, say
+ * the hook, work the tasks one at a time, then deliver the verdict. The
+ * description sits at the end, ready to paste.
+ */
+export function renderKitMarkdown(input: { kit: ProductionKit; toolUrl: string }): string {
+  const { kit } = input;
+  const parts: string[] = [];
+
+  parts.push(`# ${kit.titleArabic}`);
+  parts.push(
+    [
+      `**English:** ${kit.titleEnglish}`,
+      `**Thumbnail:** ${kit.thumbnailText}`,
+      `**Tool:** ${kit.toolName}${input.toolUrl ? ` — ${input.toolUrl}` : ''}`,
+      `**Target length:** ~${kit.estimatedMinutes} minutes`,
+      `**For:** ${kit.audienceNote}`,
+      `**The video answers:** ${kit.verdictQuestion}`,
+    ].join('  \n'),
+  );
+
+  parts.push(
+    section(
+      'Before you press record',
+      kit.setupChecklist.map((item) => `- [ ] ${item}`).join('\n'),
+    ),
+  );
+
+  parts.push(section('Hook — say this first', `> ${kit.hookArabic}`));
+
+  parts.push(`## The tests\n\n${kit.tasks.length} tasks, in recording order.`);
+
+  kit.tasks.forEach((task, index) => {
+    const lines: string[] = [];
+    lines.push(`### Task ${index + 1} — ${task.ask}`);
+    lines.push(`**Why it matters:** ${task.whyItMatters}`);
+    lines.push(`**Passes if:** ${task.passCondition}`);
+    lines.push(`**Watch for:** ${task.watchFor}`);
+    lines.push(`\n**On camera:**\n${task.steps.map((step, i) => `${i + 1}. ${step}`).join('\n')}`);
+    lines.push(`\n**Say:**\n> ${task.narrationArabic}`);
+    lines.push(`\n**Result:** ☐ pass ☐ fail — notes: ______________________`);
+    parts.push(lines.join('\n\n'));
+  });
+
+  parts.push(section('Closing — the verdict', `> ${kit.closingArabic}`));
+
+  parts.push(
+    `## YouTube description\n\nPaste this, then add your links.\n\n${FENCE}\n${kit.descriptionArabic}\n${FENCE}`,
+  );
+
+  return `${parts.join('\n\n')}\n`;
 }

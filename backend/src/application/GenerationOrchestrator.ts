@@ -13,6 +13,7 @@ import { discoveryService } from './DiscoveryService.js';
 import { jobService } from './JobService.js';
 import { lessonService } from './LessonService.js';
 import { researchService } from './ResearchService.js';
+import { productionKitService } from './ProductionKitService.js';
 import { sceneService } from './SceneService.js';
 import { voiceoverService } from './VoiceoverService.js';
 import { teaserService } from './TeaserService.js';
@@ -251,6 +252,42 @@ export class GenerationOrchestrator {
         totalSeconds,
         sceneCount: script.scenes.length,
         unverifiedCommands: unverified,
+      };
+    });
+
+    return this.describe(job);
+  }
+
+  /**
+   * The recording plan for a hands-on tool-test video: what to test, how to
+   * judge each test on camera, what to say, and how to package the result.
+   */
+  async startProductionKit(courseId: string): Promise<StartedJob> {
+    const course = await curriculumService.getCourse(courseId);
+    const job = await jobService.create(JobType.ProductionKit, courseId);
+
+    this.runDetached(job, async () => {
+      const research = await researchService.getByTopicId(String(course.topicId));
+      const masterMarkdown = await researchService.readMaster(research);
+
+      await jobService.markRunning(job, JobStage.PlanningShoot, 25);
+      await jobService.addLog(job, 'Planning the shoot...');
+      const { kit, markdownPath, jsonPath } = await productionKitService.generate(
+        course,
+        masterMarkdown,
+      );
+      await jobService.addLog(
+        job,
+        `"${kit.titleArabic}" — ${kit.tasks.length} tasks, ~${kit.estimatedMinutes} min`,
+      );
+
+      return {
+        courseId,
+        markdownPath,
+        jsonPath,
+        tasks: kit.tasks.length,
+        estimatedMinutes: kit.estimatedMinutes,
+        titleArabic: kit.titleArabic,
       };
     });
 

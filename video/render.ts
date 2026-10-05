@@ -5,6 +5,7 @@ import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 import type { Packaging, TeaserData } from './src/types';
 import type { DemoScript } from './src/sceneTypes';
+import type { ProductionKit, SegmentName } from './src/kitTypes';
 
 /**
  * Renders a video to MP4.
@@ -30,6 +31,13 @@ function readJson<T>(filePath: string): T {
 }
 
 async function main() {
+  // --kit renders the cards that get cut into a screen recording.
+  const kitPath = flag('kit');
+  if (kitPath) {
+    await renderSegments(kitPath, flag('out', 'out'));
+    return;
+  }
+
   const scenesPath = flag('scenes');
   const teaserPath = args.find((arg) => !arg.startsWith('--') && args[args.indexOf(arg) - 1]?.startsWith('--') === false);
   const positional = args.filter((arg, index) => !arg.startsWith('--') && !args[index - 1]?.startsWith('--'));
@@ -121,6 +129,40 @@ async function main() {
     `\ndone in ${((Date.now() - started) / 1000).toFixed(0)}s — ${(bytes / 1024 / 1024).toFixed(2)} MB`,
   );
   console.log(outPath);
+}
+
+/**
+ * Renders the intro, scoreboard and outro cards as separate files, so they
+ * drop straight onto an editing timeline beside the screen recording.
+ */
+async function renderSegments(kitPath: string, outDir: string) {
+  const kit = readJson<ProductionKit>(kitPath);
+  const segments: SegmentName[] = ['intro', 'scoreboard', 'outro'];
+
+  console.log(`kit:      ${kitPath}`);
+  console.log(`title:    ${kit.titleArabic}`);
+  console.log(`segments: ${segments.join(', ')}\n`);
+
+  fs.mkdirSync(path.resolve(outDir), { recursive: true });
+  const serveUrl = await bundle({ entryPoint: path.resolve('src/index.ts') });
+
+  for (const segment of segments) {
+    const inputProps = { kit, segment };
+    const composition = await selectComposition({ serveUrl, id: 'Segment', inputProps });
+    const outputLocation = path.resolve(outDir, `segment-${segment}.mp4`);
+
+    await renderMedia({
+      composition,
+      serveUrl,
+      codec: 'h264',
+      outputLocation,
+      inputProps,
+      concurrency: Math.max(1, Math.min(4, os.cpus().length - 2)),
+    });
+
+    const seconds = (composition.durationInFrames / composition.fps).toFixed(1);
+    console.log(`  ${segment.padEnd(11)} ${seconds}s  ${outputLocation}`);
+  }
 }
 
 /**

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { asyncHandler, validateRequest } from '../middleware/index.js';
 import { curriculumService } from '../application/CurriculumService.js';
 import { generationOrchestrator } from '../application/GenerationOrchestrator.js';
+import { productionKitService } from '../application/ProductionKitService.js';
 import { sceneService } from '../application/SceneService.js';
 import { storageService } from '../infrastructure/storage/index.js';
 import { AppError } from '../infrastructure/errors/AppError.js';
@@ -69,6 +70,25 @@ courseRouter.post(
   validateRequest({ params: idParams }),
   asyncHandler(async (req, res) => {
     const job = await generationOrchestrator.startSceneGeneration(req.params.id);
+    accepted(res, job);
+  }),
+);
+
+// GET /api/courses/:id/kit — the recording plan
+courseRouter.get(
+  '/:id/kit',
+  validateRequest({ params: idParams }),
+  asyncHandler(async (req, res) => {
+    ok(res, await productionKitService.read(req.params.id));
+  }),
+);
+
+// POST /api/courses/:id/kit — plan the shoot
+courseRouter.post(
+  '/:id/kit',
+  validateRequest({ params: idParams }),
+  asyncHandler(async (req, res) => {
+    const job = await generationOrchestrator.startProductionKit(req.params.id);
     accepted(res, job);
   }),
 );

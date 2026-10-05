@@ -1,5 +1,7 @@
 import { Composition } from 'remotion';
 import { DemoVideo, totalFrames } from './DemoVideo';
+import { Segments } from './Segments';
+import type { ProductionKit, SegmentProps } from './kitTypes';
 import type { DemoScript, DemoVideoProps } from './sceneTypes';
 import { TITLE_CARD_SECONDS, TeaserVideo } from './TeaserVideo';
 import { theme } from './theme';
@@ -34,6 +36,18 @@ const placeholderDemo: DemoScript = {
   ],
 };
 
+const placeholderKit: ProductionKit = {
+  toolName: 'Tool',
+  titleArabic: 'لا يوجد kit',
+  titleEnglish: 'No kit loaded',
+  thumbnailText: 'PASS --kit',
+  hookArabic: '',
+  audienceNote: '',
+  verdictQuestion: 'Pass --kit <kit.json>',
+  tasks: [],
+  estimatedMinutes: 0,
+};
+
 export function RemotionRoot() {
   return (
     <>
@@ -66,6 +80,29 @@ export function RemotionRoot() {
         }
         calculateMetadata={({ props }) => ({
           durationInFrames: totalFrames(props.script, theme.fps),
+        })}
+      />
+
+      {/* Cards to cut into a screen recording: intro, scoreboard, outro. */}
+      <Composition
+        id="Segment"
+        component={Segments}
+        width={theme.width}
+        height={theme.height}
+        fps={theme.fps}
+        durationInFrames={5 * theme.fps}
+        defaultProps={
+          {
+            kit: placeholderKit,
+            segment: 'intro',
+          } satisfies SegmentProps
+        }
+        calculateMetadata={({ props }) => ({
+          // The scoreboard needs longer: each row lands in turn.
+          durationInFrames:
+            props.segment === 'scoreboard'
+              ? Math.round((4 + props.kit.tasks.length * 0.9) * theme.fps)
+              : 5 * theme.fps,
         })}
       />
     </>

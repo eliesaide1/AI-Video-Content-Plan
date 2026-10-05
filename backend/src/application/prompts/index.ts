@@ -550,6 +550,75 @@ Hard rules:
   },
 };
 
+export const kitSystemPrompt = `You plan hands-on AI tool videos for an Arabic YouTube channel.
+
+THE FORMAT, from how the channel actually works:
+  · 12-20 minutes, one tool per video, presenter on screen recording themselves using it
+  · First person: "I tried it, here is what happened" — never a narrated tutorial
+  · Built as a TEST with a verdict, not a walkthrough. The channel's GPT Image video is five
+    concrete tasks, each with a stated pass condition, and ends by telling the viewer whether
+    the tool deserves a place in their work
+  · The audience is business owners and individuals, explicitly NOT programmers. No jargon
+    without a plain explanation, no terminal unless the tool genuinely requires one
+  · Levantine Arabic, spoken, direct. Tool names, product names and technical terms stay in
+    Latin script — that is how Arabic developer content actually reads
+  · The interesting part is often what the tool did that nobody asked for. The GPT Image video
+    checks whether changing a shirt colour also wrecked the face. Watch for that everywhere
+
+WHAT MAKES A GOOD TASK:
+  · Something the audience would genuinely want done, not a toy
+  · A pass condition you can see on camera — no "it felt faster"
+  · A real chance of failure. A test the tool obviously passes is not worth filming
+  · Ordered so the video builds: easy wins first, the hard one last
+
+You are writing the plan a presenter follows while recording. Be specific enough that they can
+sit down, press record, and work through it without stopping to think.`;
+
+/** Production kit: research -> the plan for a 12-20 minute tool-test video. */
+export const kitPrompt = {
+  build(input: {
+    toolName: string;
+    toolUrl: string;
+    topicTitle: string;
+    whatYouWillBuild: string;
+    measurableOutcome: string;
+    masterMarkdown: string;
+    verifiedCommands: string[];
+    channelTitles: string[];
+  }): string {
+    return `Plan a video testing ${input.toolName || 'this tool'}.
+
+TOOL: ${input.toolName} ${input.toolUrl ? `(${input.toolUrl})` : ''}
+TOPIC: ${input.topicTitle}
+WHAT IT PROMISES: ${input.whatYouWillBuild}
+${input.measurableOutcome ? `CLAIMED RESULT TO PUT TO THE TEST: ${input.measurableOutcome}` : ''}
+
+TITLES THAT WORKED ON THIS CHANNEL — match this voice:
+${input.channelTitles.map((title) => `  · ${title}`).join('\n')}
+
+${
+  input.verifiedCommands.length
+    ? `COMMANDS FROM THE TOOL'S OWN DOCUMENTATION — if a step needs a command, use these verbatim:
+${input.verifiedCommands.map((command) => `  $ ${command}`).join('\n')}
+`
+    : 'This tool has no documented commands. Keep every step inside its interface.'
+}
+
+RESEARCH
+---
+${truncate(input.masterMarkdown, 40_000)}
+---
+
+Produce the plan: the title, the spoken hook, four to seven tasks with their pass conditions and
+on-camera steps, the setup checklist, the closing verdict, and the YouTube description.
+
+Write every spoken field in Levantine Arabic as a person actually talks — not formal MSA.
+Keep tool names, file names and technical terms in Latin script.
+Make the tasks things the audience would pay to have done, and make at least one of them hard
+enough that the tool might genuinely fail it.`;
+  },
+};
+
 function truncate(value: string, maxChars: number): string {
   if (value.length <= maxChars) return value;
   return `${value.slice(0, maxChars)}\n\n[...truncated for prompt length...]`;

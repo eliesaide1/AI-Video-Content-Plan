@@ -18,6 +18,9 @@ export const contentPaths = {
   coursePlan: (courseId: string) => `courses/${courseId}/course/COURSE.md`,
   lesson: (courseId: string, sectionOrder: number, lessonOrder: number) =>
     `courses/${courseId}/course/section-${pad(sectionOrder)}/lesson-${pad(lessonOrder)}.md`,
+  /** The recording plan: what to test, how to judge it, what to say. */
+  productionKit: (courseId: string) => `courses/${courseId}/production/KIT.md`,
+  productionKitJson: (courseId: string) => `courses/${courseId}/production/kit.json`,
   /** Narration audio for one demo scene (1-based). */
   sceneAudio: (courseId: string, sceneNumber: number) =>
     `courses/${courseId}/audio/scene-${String(sceneNumber).padStart(2, '0')}.mp3`,
