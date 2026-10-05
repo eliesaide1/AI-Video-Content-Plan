@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { asyncHandler, validateRequest } from '../middleware/index.js';
 import { curriculumService } from '../application/CurriculumService.js';
 import { generationOrchestrator } from '../application/GenerationOrchestrator.js';
+import { sceneService } from '../application/SceneService.js';
 import { storageService } from '../infrastructure/storage/index.js';
 import { AppError } from '../infrastructure/errors/AppError.js';
 import { accepted, ok } from './respond.js';
@@ -49,6 +50,25 @@ courseRouter.post(
   validateRequest({ params: idParams }),
   asyncHandler(async (req, res) => {
     const job = await generationOrchestrator.startCourseGeneration(req.params.id);
+    accepted(res, job);
+  }),
+);
+
+// GET /api/courses/:id/scenes — the structured demo scenes
+courseRouter.get(
+  '/:id/scenes',
+  validateRequest({ params: idParams }),
+  asyncHandler(async (req, res) => {
+    ok(res, await sceneService.read(req.params.id));
+  }),
+);
+
+// POST /api/courses/:id/scenes — generate demo scenes from the research
+courseRouter.post(
+  '/:id/scenes',
+  validateRequest({ params: idParams }),
+  asyncHandler(async (req, res) => {
+    const job = await generationOrchestrator.startSceneGeneration(req.params.id);
     accepted(res, job);
   }),
 );

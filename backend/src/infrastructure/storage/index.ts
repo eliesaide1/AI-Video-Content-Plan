@@ -18,6 +18,8 @@ export const contentPaths = {
   coursePlan: (courseId: string) => `courses/${courseId}/course/COURSE.md`,
   lesson: (courseId: string, sectionOrder: number, lessonOrder: number) =>
     `courses/${courseId}/course/section-${pad(sectionOrder)}/lesson-${pad(lessonOrder)}.md`,
+  /** Structured scenes for the demo video (spec §9). */
+  demoScenes: (courseId: string) => `courses/${courseId}/scenes/demo.json`,
   teaserMarkdown: (courseId: string) => `courses/${courseId}/marketing/teaser.md`,
   teaserJson: (courseId: string) => `courses/${courseId}/marketing/teaser.json`,
 };

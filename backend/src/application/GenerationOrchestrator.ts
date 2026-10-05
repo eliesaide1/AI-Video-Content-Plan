@@ -13,6 +13,7 @@ import { discoveryService } from './DiscoveryService.js';
 import { jobService } from './JobService.js';
 import { lessonService } from './LessonService.js';
 import { researchService } from './ResearchService.js';
+import { sceneService } from './SceneService.js';
 import { teaserService } from './TeaserService.js';
 import { topicService } from './TopicService.js';
 
@@ -210,6 +211,29 @@ export class GenerationOrchestrator {
       await jobService.markRunning(job, JobStage.GeneratingTeaser, 25);
       const teaser = await teaserService.generate(course, masterMarkdown);
       return { courseId, teaserId: teaser.id, markdownPath: teaser.markdownPath };
+    });
+
+    return this.describe(job);
+  }
+
+  /** Demo scenes: MASTER.md -> structured scenes the renderer can draw. */
+  async startSceneGeneration(courseId: string): Promise<StartedJob> {
+    const course = await curriculumService.getCourse(courseId);
+    const job = await jobService.create(JobType.Scenes, courseId);
+
+    this.runDetached(job, async () => {
+      const research = await researchService.getByTopicId(String(course.topicId));
+      const masterMarkdown = await researchService.readMaster(research);
+
+      await jobService.markRunning(job, JobStage.GeneratingScenes, 25);
+      await jobService.addLog(job, 'Turning the research into demo scenes...');
+      const { path, totalSeconds, script } = await sceneService.generateDemo(course, masterMarkdown);
+      await jobService.addLog(
+        job,
+        `${script.scenes.length} scene(s), ${totalSeconds}s — ${script.scenes.map((s) => s.type).join(' → ')}`,
+      );
+
+      return { courseId, scenesPath: path, totalSeconds, sceneCount: script.scenes.length };
     });
 
     return this.describe(job);

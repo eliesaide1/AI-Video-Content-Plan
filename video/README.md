@@ -1,5 +1,19 @@
 # Video renderer (Remotion)
 
+Two compositions:
+
+| Composition | Input | What it is |
+| --- | --- | --- |
+| **Demo** | `scenes/demo.json` | Shows the problem and the tool fixing it — real commands typing out with their real output, real code, real before/after numbers. ~45-60s |
+| **Teaser** | `marketing/teaser.json` | The 15-30s promo. Statements and a pipeline, no demonstration |
+
+```bash
+# the demo
+npx tsx render.ts --scenes ../backend/generated/courses/<id>/scenes/demo.json \
+  --title "Course title" --out out/demo.mp4
+```
+
+
 Turns the scene data the backend produces into an MP4. The AI supplies **what** a scene says;
 the components here decide **how it looks**, which is what keeps every video in a channel
 looking like the same channel.
@@ -31,7 +45,24 @@ First run downloads Chrome Headless Shell (~94 MB). A 28s vertical teaser render
 npm run studio
 ```
 
-## How a beat becomes a scene
+## How a demo scene becomes a picture
+
+`DemoVideo.tsx` maps each scene to a component by its `type`. The AI picks the type and writes
+the content; it never decides how the scene looks.
+
+| Scene type | Component | What it draws |
+| --- | --- | --- |
+| `title` | `DemoTitle` | headline plus thumbnail chips |
+| `problem` | `DemoProblem` | the real manual steps, numbered, with what they cost today |
+| `terminal` | `DemoTerminal` | the command types out character by character, then its real output appears; lines matching error/warning wording are highlighted |
+| `code` | `DemoCode` | real code with line numbers and the important lines highlighted |
+| `comparison` | `DemoComparison` | the two numbers, before in red and after in green |
+| `outcome` | `DemoOutcome` | what the viewer can now do |
+| `cta` | `DemoCta` | course title and call to action |
+
+Each scene declares its own `durationSeconds`, so the running time is whatever the script says.
+
+## How a teaser beat becomes a scene
 
 `TeaserVideo.tsx` maps each beat to a component by its label — never the AI's choice:
 

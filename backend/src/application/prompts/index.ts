@@ -127,6 +127,22 @@ ${ACCURACY_RULES}`,
 
   teaser: `You are a short-form video scriptwriter for developer education.
 You write 15-30 second teasers that create curiosity without teaching the whole topic.`,
+
+  demo: `You write short demo videos that SHOW a tool working, and you are allergic to claims
+without evidence.
+
+The rule that governs everything you write: never assert on screen what you could demonstrate
+instead. "Manual review is slow" is a claim. A list of the six things a person actually does by
+hand, with "30 min" beside it, is a demonstration. "Codex checks the document" is a claim. The
+real command, with the real output printed underneath it, is a demonstration.
+
+Your scenes must carry real material: the actual commands someone types, the actual output that
+comes back, real code, and the real before/after numbers. You take that material from the
+research document you are given. You do not invent commands, flags, output or numbers — a
+viewer will run these and find out.
+
+A demo that shows the problem concretely, then shows the fix running, then shows the two
+numbers side by side, is worth ten that describe the same thing.`,
 };
 
 export interface AudienceContext {
@@ -385,6 +401,59 @@ Rules:
 - Do not try to teach the whole topic.
 - Spoken, punchy sentences. No hype words like "revolutionary" or "game-changing".
 - onScreenText must be a few words, not a sentence.`;
+  },
+};
+
+/** Demo: MASTER.md -> scenes that show the problem and the fix. */
+export const demoPrompt = {
+  build(input: {
+    toolName: string;
+    topicTitle: string;
+    whatYouWillBuild: string;
+    measurableOutcome: string;
+    courseTitle: string;
+    masterMarkdown: string;
+    context: AudienceContext;
+  }): string {
+    return `Write the scenes for a short demo video that shows ${input.toolName || 'this tool'}
+solving a real problem.
+
+TOPIC: ${input.topicTitle}
+TOOL: ${input.toolName || '(none named — the demo is about the technique)'}
+WHAT THE VIEWER ENDS UP WITH: ${input.whatYouWillBuild}
+CLAIMED RESULT: ${input.measurableOutcome || '(no number was claimed — do not invent one)'}
+COURSE: ${input.courseTitle}
+
+${audienceLine(input.context)}
+
+RESEARCH DOCUMENT — every command, code sample and number you use must come from here
+---
+${truncate(input.masterMarkdown, 45_000)}
+---
+
+Build the video in this order:
+
+1. "title" — the promise, with up to three very short chips. 3-4 seconds.
+2. "problem" — the manual process as it exists TODAY. List the real steps a person performs,
+   in order, and put the real cost beside them ("30 min", "per document"). Do not write
+   adjectives like "slow" or "painful"; the steps and the number say it. 5-7 seconds.
+3. One or two "terminal" scenes — the actual commands to install and run the tool, each with
+   the output it really produces. This is the heart of the video: the viewer must see it
+   working. 6-10 seconds each.
+4. Optionally one "code" scene if the viewer has to write something, with the important lines
+   highlighted. Real, runnable code only. 6-10 seconds.
+5. "comparison" — before and after, with the two real numbers. 4-6 seconds.
+6. "outcome" — what the viewer can now do, 2-4 bullets. 4-5 seconds.
+7. "cta" — one line pointing at the course. 3 seconds.
+
+Hard rules:
+- Commands must be ones a viewer can actually type. No pseudo-commands, no "<your-key-here>"
+  unless that is genuinely what they type.
+- Output must be plausible real output for that command, trimmed to the few lines that matter.
+- If the research does not support the claimed number, leave the comparison numbers to what IS
+  supported, or describe the change qualitatively. Never invent a benchmark.
+- Total runtime should land between 35 and 70 seconds.
+- Narration is spoken over the scene: short sentences, no reading the screen aloud.`;
   },
 };
 
