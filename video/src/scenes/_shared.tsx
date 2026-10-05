@@ -25,6 +25,9 @@ export function SceneFrame({ accent, children }: { accent: string; children: Rea
         fontFamily: theme.font.family,
         color: theme.colors.text,
         padding: 110,
+        // The caption is absolutely positioned at the bottom, so content has
+        // to stop above it or a dense scene collides with the narration.
+        paddingBottom: 380,
         justifyContent: 'center',
       }}
     >
@@ -74,9 +77,9 @@ export function Caption({ text }: { text: string }) {
         position: 'absolute',
         left: 110,
         right: 110,
-        bottom: 150,
+        bottom: 120,
         opacity: opacity * 0.92,
-        fontSize: 36,
+        fontSize: 34,
         lineHeight: 1.45,
         color: theme.colors.dim,
         borderLeft: `5px solid ${theme.colors.bgLift}`,

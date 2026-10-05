@@ -15,6 +15,11 @@ export interface TitleScene extends BaseScene {
   subhead?: string;
   chips?: string[];
 }
+export interface StakesScene extends BaseScene {
+  type: 'stakes';
+  scenario: string;
+  costs: { kind: 'money' | 'time' | 'privacy' | 'limit'; value: string; label: string }[];
+}
 export interface ProblemScene extends BaseScene {
   type: 'problem';
   headline: string;
@@ -53,6 +58,7 @@ export interface CtaScene extends BaseScene {
 
 export type DemoScene =
   | TitleScene
+  | StakesScene
   | ProblemScene
   | TerminalScene
   | CodeScene

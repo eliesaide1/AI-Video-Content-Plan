@@ -112,6 +112,7 @@ function normalise(raw: unknown): unknown {
 
   const keep: Record<string, string[]> = {
     title: ['type', 'durationSeconds', 'narration', 'headline', 'subhead', 'chips'],
+    stakes: ['type', 'durationSeconds', 'narration', 'scenario', 'costs'],
     problem: ['type', 'durationSeconds', 'narration', 'headline', 'painSteps', 'costLabel', 'costValue'],
     terminal: ['type', 'durationSeconds', 'narration', 'title', 'lines'],
     code: ['type', 'durationSeconds', 'narration', 'filename', 'language', 'code', 'highlightLines'],

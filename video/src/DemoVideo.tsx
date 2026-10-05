@@ -5,6 +5,7 @@ import {
   DemoCta,
   DemoOutcome,
   DemoProblem,
+  DemoStakes,
   DemoTerminal,
   DemoTitle,
 } from './scenes/DemoScenes';
@@ -48,6 +49,8 @@ function renderScene(scene: DemoScene, courseTitle: string) {
   switch (scene.type) {
     case 'title':
       return <DemoTitle scene={scene} />;
+    case 'stakes':
+      return <DemoStakes scene={scene} />;
     case 'problem':
       return <DemoProblem scene={scene} />;
     case 'terminal':

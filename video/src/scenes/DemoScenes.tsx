@@ -7,6 +7,7 @@ import type {
   CtaScene,
   OutcomeScene,
   ProblemScene,
+  StakesScene,
   TerminalScene,
   TitleScene,
 } from '../sceneTypes';
@@ -70,6 +71,93 @@ export function DemoTitle({ scene }: { scene: TitleScene }) {
 
       <Caption text={scene.narration} />
     </SceneFrame>
+  );
+}
+
+/* ------------------------------ stakes ------------------------------- */
+
+const COST_ICON: Record<string, string> = {
+  money: '$',
+  time: '⏱',
+  privacy: '🔒',
+  limit: '⛔',
+};
+
+/**
+ * The reason to care, before anything technical. A situation the viewer
+ * recognises, then what it costs them today.
+ */
+export function DemoStakes({ scene }: { scene: StakesScene }) {
+  const scenario = useEntrance(2);
+
+  return (
+    <SceneFrame accent={theme.colors.warning}>
+      <Eyebrow label="if this is you" accent={theme.colors.warning} />
+
+      <p
+        style={{
+          opacity: scenario.opacity,
+          transform: `translateY(${scenario.translateY}px)`,
+          margin: '0 0 40px',
+          // Scale down as the scene gets denser, so three costs and a long
+          // scenario still fit above the caption.
+          fontSize: scene.scenario.length > 150 || scene.costs.length > 2 ? 48 : 62,
+          fontWeight: 700,
+          lineHeight: 1.28,
+        }}
+      >
+        {scene.scenario}
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {scene.costs.map((cost, index) => (
+          <Cost key={index} cost={cost} index={index} />
+        ))}
+      </div>
+
+      <Caption text={scene.narration} />
+    </SceneFrame>
+  );
+}
+
+function Cost({
+  cost,
+  index,
+}: {
+  cost: StakesScene['costs'][number];
+  index: number;
+}) {
+  const { opacity, translateY } = useEntrance(10 + index * 9);
+  return (
+    <div
+      style={{
+        opacity,
+        transform: `translateY(${translateY}px)`,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 24,
+        backgroundColor: theme.colors.bgLift,
+        border: `3px solid ${theme.colors.warning}44`,
+        borderRadius: 18,
+        padding: '18px 26px',
+      }}
+    >
+      <span style={{ fontSize: 46, width: 56, textAlign: 'center', flexShrink: 0 }}>
+        {COST_ICON[cost.kind] ?? '•'}
+      </span>
+      <span
+        style={{
+          fontSize: 48,
+          fontWeight: 900,
+          color: theme.colors.warning,
+          flexShrink: 0,
+          maxWidth: 320,
+        }}
+      >
+        {cost.value}
+      </span>
+      <span style={{ fontSize: 30, color: theme.colors.dim, lineHeight: 1.25 }}>{cost.label}</span>
+    </div>
   );
 }
 

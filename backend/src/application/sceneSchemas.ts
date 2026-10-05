@@ -28,6 +28,32 @@ export const titleSceneZ = z.object({
   chips: z.array(z.string().max(40)).max(3).default([]),
 });
 
+/**
+ * Why the viewer should care, before anything technical happens.
+ *
+ * Added because the videos were listing features — "no API key, no cloud" —
+ * and a viewer could watch the whole thing without learning who it was for or
+ * what it saved them. A scenario they recognise plus what it costs them today
+ * is what makes the rest worth watching.
+ */
+export const stakesSceneZ = z.object({
+  type: z.literal('stakes'),
+  ...base,
+  /** A specific situation the viewer recognises being in. */
+  scenario: z.string().max(300),
+  /** What that situation costs today. Money, time, privacy or a hard limit. */
+  costs: z
+    .array(
+      z.object({
+        kind: z.enum(['money', 'time', 'privacy', 'limit']),
+        value: z.string().max(40),
+        label: z.string().max(80),
+      }),
+    )
+    .min(1)
+    .max(3),
+});
+
 /** The problem, made concrete: the painful steps, and what they cost today. */
 export const problemSceneZ = z.object({
   type: z.literal('problem'),
@@ -99,6 +125,7 @@ export const ctaSceneZ = z.object({
 
 export const sceneZ = z.discriminatedUnion('type', [
   titleSceneZ,
+  stakesSceneZ,
   problemSceneZ,
   terminalSceneZ,
   codeSceneZ,
@@ -130,7 +157,7 @@ const sceneJson = {
   properties: {
     type: {
       type: 'string',
-      enum: ['title', 'problem', 'terminal', 'code', 'comparison', 'outcome', 'cta'],
+      enum: ['title', 'stakes', 'problem', 'terminal', 'code', 'comparison', 'outcome', 'cta'],
       description: 'Which scene this is',
     },
     durationSeconds: num('How long this scene holds, 2-25 seconds'),
@@ -140,6 +167,28 @@ const sceneJson = {
     subhead: str('title only: the second line'),
     chips: strArray('title only: up to 3 very short punches, e.g. "30 MIN -> 4 MIN"'),
 
+    scenario: str(
+      'stakes only: a specific situation the viewer recognises being in. Name the person and the task, e.g. "You want to ask AI about your client contracts, but they are confidential."',
+    ),
+    costs: {
+      type: 'array',
+      description:
+        'stakes only: 1-3 things that situation costs today. Use a real number where one exists.',
+      items: {
+        type: 'object',
+        properties: {
+          kind: {
+            type: 'string',
+            enum: ['money', 'time', 'privacy', 'limit'],
+            description: 'What kind of cost this is',
+          },
+          value: str('The cost itself, e.g. "$240/mo", "30 min", "every file"'),
+          label: str('What it refers to, e.g. "in API bills", "per document", "leaves your machine"'),
+        },
+        required: ['kind', 'value', 'label'],
+        additionalProperties: false,
+      },
+    },
     painSteps: strArray(
       'problem only: the actual manual steps someone performs today, 2-6 of them. Concrete actions, not adjectives.',
     ),
@@ -224,6 +273,7 @@ export const demoScriptJsonSchema: JsonSchema = {
  * ------------------------------------------------------------------ */
 
 const STRING_LIMITS: Record<string, number> = {
+  scenario: 300,
   narration: 900,
   headline: 200,
   subhead: 240,
@@ -242,6 +292,7 @@ const STRING_LIMITS: Record<string, number> = {
 };
 
 const ARRAY_LIMITS: Record<string, number> = {
+  costs: 3,
   chips: 3,
   painSteps: 8,
   bullets: 5,
